@@ -3,6 +3,9 @@ wodiyc
 
 WOoden DIY CNC
 
+*This project is in alpha phase and unfinished.  Nevertheless some
+parts might already be useful.*
+
 Introduction
 ============
 
