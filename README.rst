@@ -43,7 +43,9 @@ A small list of requirements of this project:
 #. The complete (software-) tool chain should be open source and
    available within the most common Linux distributions.
 
-The initial toolchain is: librecad, dxf2gcode and linuxcnc.
+The initial toolchain is: python, blender and linuxcnc.
+
+.. image:: images/001_AdjustmentBlock-Small.png
 
 
 Notes
