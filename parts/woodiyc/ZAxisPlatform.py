@@ -73,6 +73,8 @@ class ZAxisPlatformBack:
         self.__screw_tool_diameter = screw_tool_diameter
         self.__screw_tool_depth = screw_tool_depth
 
+        self.__cutoffs = []
+
     def _construct_basic_plate(self):
         '''The basic part'''
         bpy.ops.mesh.primitive_cube_add(location=(0, 0, 0))
@@ -82,36 +84,26 @@ class ZAxisPlatformBack:
                             self.__platform_thick)
         return plate
 
-    def __subtract_cutoffs(self, plate):
-        bpy.ops.mesh.primitive_cube_add(location=(0, 0, 0))
-        cutoff = bpy.context.object
-        cutoff.dimensions \
-            = (self.__cutout_width, self.__cutout_length + 2,
-               self.__cutout_depth + 2)
+    def __construct_cutoffs(self):
         for x in (- self.__cutout_distance / 2,
                   self.__cutout_distance / 2):
+            bpy.ops.mesh.primitive_cube_add(location=(0, 0, 0))
+            cutoff = bpy.context.object
+            cutoff.dimensions \
+            = (self.__cutout_width, self.__cutout_length + 2,
+               self.__cutout_depth + 2)
             cutoff.location \
                 = (x,
                    (self.__platform_height - self.__cutout_length) / 2,
                    self.__platform_thick/2 - self.__cutout_depth/2)
-            BY.mod_boolean(plate, cutoff, 'DIFFERENCE')
-        BY.delete(cutoff)
+            self.__cutoffs.append(cutoff)
+            #BY.mod_boolean(plate, cutoff, 'DIFFERENCE')
+        #BY.delete(cutoff)
 
-    def __cut_holes_for_screws(self, plate):
+    def __construct_holes_for_screws(self):
         # Holes for Screws
         ex_height = self.__platform_thick + 2
-        bpy.ops.mesh.primitive_cylinder_add(location=(0, 0, 0))
-        screw_hole = bpy.context.object
-        screw_hole.dimensions = (self.__screw_hole_diameter,
-                                 self.__screw_hole_diameter,
-                                 ex_height)
 
-        bpy.ops.mesh.primitive_cylinder_add(location=(0, 0, 0))
-        tool_hole = bpy.context.object
-        tool_hole.dimensions = (self.__screw_tool_diameter,
-                                self.__screw_tool_diameter,
-                                self.__screw_tool_depth + 1)
-        
         # The screw holes in the cutoffs
         for x in (- self.__cutout_distance / 2,
                   self.__cutout_distance / 2):
@@ -120,8 +112,14 @@ class ZAxisPlatformBack:
                        self.__platform_height / 2
                        - self.__cutout_length
                        + self.__screw_hole_distance_from_edge ):
+                bpy.ops.mesh.primitive_cylinder_add(location=(0, 0, 0))
+                screw_hole = bpy.context.object
+                screw_hole.dimensions = (self.__screw_hole_diameter,
+                                 self.__screw_hole_diameter,
+                                 ex_height)
                 screw_hole.location = (x, y, 0)
-                BY.mod_boolean(plate, screw_hole, 'DIFFERENCE')
+                self.__cutoffs.append(screw_hole)
+                #BY.mod_boolean(plate, screw_hole, 'DIFFERENCE')
 
         # The screw holes in the bottom part to fit the front
         # and back together.
@@ -134,20 +132,32 @@ class ZAxisPlatformBack:
                       - self.__screw_hole_distance_from_edge,
                       - self.__platform_height / 2 
                       + self.__screw_hole_distance_from_edge):
+                bpy.ops.mesh.primitive_cylinder_add(location=(0, 0, 0))
+                screw_hole = bpy.context.object
+                screw_hole.dimensions = (self.__screw_hole_diameter,
+                                 self.__screw_hole_diameter,
+                                 ex_height)
                 screw_hole.location = (x, y, 0)
-                BY.mod_boolean(plate, screw_hole, 'DIFFERENCE')
+                self.__cutoffs.append(screw_hole)
+                #BY.mod_boolean(plate, screw_hole, 'DIFFERENCE')
+                bpy.ops.mesh.primitive_cylinder_add(location=(0, 0, 0))
+                tool_hole = bpy.context.object
+                tool_hole.dimensions = (self.__screw_tool_diameter,
+                                        self.__screw_tool_diameter,
+                                        self.__screw_tool_depth + 1)
                 tool_hole.location = (x, y,
                                       self.__platform_thick/2
                                       - self.__screw_tool_depth/2)
-                BY.mod_boolean(plate, tool_hole, 'DIFFERENCE')
+                #BY.mod_boolean(plate, tool_hole, 'DIFFERENCE')
+                self.__cutoffs.append(tool_hole)
        
-        BY.delete(screw_hole)
-        BY.delete(tool_hole)
+        #BY.delete(screw_hole)
+        #BY.delete(tool_hole)
 
     def construct(self):
-        plate = self._construct_basic_plate()
-        self.__subtract_cutoffs(plate)
-        self.__cut_holes_for_screws(plate)
+        #self.__platform = self._construct_basic_plate()
+        self.__construct_cutoffs()
+        self.__construct_holes_for_screws()
 
 class ZAxisPlatform:
 
@@ -169,6 +179,8 @@ class ZAxisPlatform:
                  screw_hole_diameter=6.2,
                  screw_hole_distance_from_edge=25,
                  screw_tool_diameter=15, screw_tool_depth=4):
+        
+        
 #        self.__front = ZAxisPlatformFront(
 #            platform_thick_half, platform_height, platform_width)
         self.__back = ZAxisPlatformBack(

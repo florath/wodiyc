@@ -9,6 +9,8 @@ import time
 import math
 
 from woodiyc.BlenderInit import BlenderInit
+from woodiyc.CAMMachine import CAMMachine
+from woodiyc.CAMObject import CAMObjectsList
 import woodiyc.BY as BY
 
 def deg2rad(d):
@@ -43,10 +45,11 @@ def by_add_bridge(x, y, z, rot, sizex, sizey):
     b.rotation_euler.z = rot
     return b
 
-class AdjustmentBlock:
+class AdjustmentBlock(CAMObjectsList):
 
     def __init__(self, size=80, height=19, hole_diam=36, notch_width=10, notch_height=4,
                  screw_hole_diam=6.2, screw_hole_pos_ratio=0.95):
+        super().__init__()
         self.__size = size
         self.__height = height
         self.__hole_diam = hole_diam
@@ -177,88 +180,9 @@ class AdjustmentBlock:
         self.__adjustment_block = plate
         self.__adjustment_block.name = "AdjustmentBlock"
         self.transform(self.__size/2, self.__size/2, -self.__height/2)
-
-    def get_cut_obj(self):
-        return self.__adjustment_block
-
-    def get_bridges_name(self):
-        return "AdjustmentBlockBridges"
-
-class CAMMachine:
-
-    def __init_params(self):
-        d = bpy.context.scene.cam_machine
-        s = bpy.context.scene.unit_settings
-
-        d.post_processor = 'EMC'
-        s.system = 'METRIC'
-        d.use_position_definitions = False
-        d.starting_position = (0.0, 0.0, 0.0)
-        d.mtc_position = (0.0, 0.0, 0.0)
-        d.ending_position = (0, 0, 0)
-        d.working_area = (500, 500, 100)
-        d.feedrate_min = 0.0
-        d.feedrate_max = 900
-        d.feedrate_default = 900
-        d.spindle_min = 5000.0
-        d.spindle_max = 30000.0
-        d.spindle_default = 15000.0
-        d.axis4 = False
-        d.axis5 = False
-        d.collet_size = 33.0
-        d.output_tool_change = True
-        d.output_block_numbers = False
-        d.output_tool_definitions = True
-        d.output_g43_on_tool_change = False
-
-    def __init__(self, obj, cutter_diameter=3.175, cutter_diameter_delta=1.0):
-        bpy.context.scene.render.engine = 'BLENDERCAM_RENDER'
-        self.__init_params()
-        self.__obj = obj
-        self.__cutter_diameter = cutter_diameter
-        self.__cutter_diameter_delta = cutter_diameter_delta
-        self.__ocut = obj.get_cut_obj()
-        self.__name = obj.get_cut_obj().name
-
-    def process(self):
-        bpy.ops.object.select_all(action='DESELECT')
-        
-        bpy.ops.scene.cam_operation_add()
-        bpy.context.scene.cam_operations[0].auto_export = False
-        bpy.context.scene.cam_operations[0].object_name = self.__name
-        bpy.context.scene.cam_operations[0].material_radius_around_model = 10
-        bpy.context.scene.cam_operations[0].free_movement_height = 7
-
-        #bpy.ops.object.cam_position()
-        bpy.context.scene.cam_operations[0].strategy = 'CUTOUT'
-        bpy.context.scene.cam_operations[0].cut_type = 'OUTSIDE'
-
-        # Bridges
-        bpy.context.scene.cam_operations[0].use_bridges = True
-        bpy.context.scene.cam_operations[0].bridges_group_name = self.__obj.get_bridges_name()
-
-        bpy.context.scene.cam_operations[0].bridges_width = 2
-        bpy.context.scene.cam_operations[0].bridges_height = 2
-        #bpy.ops.scene.cam_bridges_add()
-
-        # Compute stepdown
-        # ToDo: 22 is 22 mm thick plate - need to be variable.
-        stepdown_max = 3.175 / 2.1
-        stepdown_cnt = int(self.__ocut.dimensions.z / stepdown_max) + 1
-        stepdown = self.__ocut.dimensions.z / stepdown_cnt
-
-        bpy.context.scene.cam_operations[0].imgres_limit = 1
-        bpy.context.scene.cam_operations[0].stepdown = stepdown
-        bpy.context.scene.cam_operations[0].first_down = True
-
-        bpy.context.scene.cam_operations[0].cutter_diameter \
-            = self.__cutter_diameter * self.__cutter_diameter_delta
-
-        bpy.ops.object.calculate_cam_path()
-
-        # Save
-        bpy.context.scene.cam_operations[0].filename = "AdjustmentBlockSmall"
-        bpy.ops.object.cam_export()
+        self.add('AdjustmentBlock', 'CUTOUT', 'OUTSIDE',
+                 (self.__adjustment_block, ),
+                 "AdjustmentBlockBridges", (self.__bridges, ))
 
         
 def main():
@@ -268,7 +192,7 @@ def main():
     ab.construct()
 
     # This is for my personal machine and for 3.175 diameter tool
-    cam = CAMMachine(ab, cutter_diameter=3.175, cutter_diameter_delta=1.16)
+    cam = CAMMachine(ab, cutter_diameter=3.175, cutter_diameter_delta=0.75)
     cam.process()
 
 if __name__ == '__main__':
