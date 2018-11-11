@@ -40,22 +40,49 @@ class ZAxisPlatformBack:
             screw_notch_diameter=15,
             screw_notch_depth=4):
 
+        self.__platform_x = platform_x
+        self.__platform_y = platform_y
         self.__platform_z = platform_z
+        self.__cutout_distance = cutout_distance
+        self.__cutout_length = cutout_length
+        self.__cutout_length_add = cutout_length_add
+        self.__cutout_width = cutout_width
+        self.__cutout_depth = cutout_depth
         self.__screw_hole_diameter = screw_hole_diameter
         self.__screw_hole_distance_from_edge \
             = screw_hole_distance_from_edge
         self.__screw_notch_diameter = screw_notch_diameter
         self.__screw_notch_depth = screw_notch_depth
 
-    def generate_gcode(self, gcode_file):
-        # Notch
-        gcode_file.cylinder(
-            self.__screw_hole_distance_from_edge,
-            self.__screw_hole_distance_from_edge,
-            self.__screw_notch_diameter, self.__screw_notch_depth)
-        # Screw
-        gcode_file.cylinder(
-            self.__screw_hole_distance_from_edge,
-            self.__screw_hole_distance_from_edge,
-            self.__screw_hole_diameter, self.__platform_z)
+    def generate_gcode(self, gf):
+        # Lower holes for scrwes to fit front and back together
+        for x in (self.__screw_hole_distance_from_edge,
+                  self.__platform_x
+                  - self.__screw_hole_distance_from_edge):
+            for y in (self.__screw_hole_distance_from_edge,
+                      self.__platform_y
+                      - self.__cutout_length
+                      - self.__screw_hole_distance_from_edge):
+                # Notch
+                gf.cylinder(
+                    x, y,
+                    self.__screw_notch_diameter, self.__screw_notch_depth)
+                # Screw
+                gf.cylinder(
+                    x, y,
+                    self.__screw_hole_diameter, self.__platform_z,
+                    self.__screw_notch_depth)
+                gf.free_movement()
             
+        # pockets
+        for px in (self.__platform_x / 2 - self.__cutout_distance / 2 \
+                   - self.__cutout_width,
+                   self.__platform_x / 2 + self.__cutout_distance / 2 \
+                   - self.__cutout_width):
+            real_cutout_length = self.__cutout_length + self.__cutout_length_add
+            gf.pocket(px,
+                      self.__platform_y - real_cutout_length,
+                      self.__cutout_width,
+                      # Increase the cutout a bit to get a clean cut
+                      real_cutout_length + 3,
+                      self.__cutout_depth)
