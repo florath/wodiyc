@@ -86,3 +86,4 @@ class ZAxisPlatformBack:
                       # Increase the cutout a bit to get a clean cut
                       real_cutout_length + 3,
                       self.__cutout_depth)
+            gf.free_movement()
