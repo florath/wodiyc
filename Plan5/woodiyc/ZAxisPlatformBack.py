@@ -62,6 +62,7 @@ class ZAxisPlatformBack:
             for y in (self.__screw_hole_distance_from_edge,
                       self.__platform_y
                       - self.__cutout_length
+                      - self.__screw_notch_diameter
                       - self.__screw_hole_distance_from_edge):
                 # Notch
                 gf.cylinder(
@@ -75,15 +76,29 @@ class ZAxisPlatformBack:
                 gf.free_movement()
             
         # pockets
-        for px in (self.__platform_x / 2 - self.__cutout_distance / 2 \
-                   - self.__cutout_width,
-                   self.__platform_x / 2 + self.__cutout_distance / 2 \
-                   - self.__cutout_width):
+        for px in (self.__platform_x / 2 - self.__cutout_distance / 2,
+                   self.__platform_x / 2 + self.__cutout_distance / 2 ):
             real_cutout_length = self.__cutout_length + self.__cutout_length_add
-            gf.pocket(px,
+            gf.pocket(px - self.__cutout_width / 2,
                       self.__platform_y - real_cutout_length,
                       self.__cutout_width,
                       # Increase the cutout a bit to get a clean cut
                       real_cutout_length + 3,
                       self.__cutout_depth)
             gf.free_movement()
+
+            for sy in ( self.__platform_y - real_cutout_length
+                        + self.__screw_hole_distance_from_edge,
+                        self.__platform_y
+                        - self.__screw_hole_distance_from_edge ):
+                # Screw
+                gf.cylinder(
+                    px, sy,
+                    self.__screw_hole_diameter, self.__platform_z,
+                    self.__screw_notch_depth)
+                gf.free_movement()
+
+        # Cutout the complete platform
+        gf.cutout_rect(0, 0, self.__platform_x, self.__platform_y,
+                       self.__platform_z)
+        gf.free_movement()

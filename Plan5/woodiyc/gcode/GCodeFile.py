@@ -41,14 +41,18 @@ Z%.5f
     def free_movement(self):
         self._w("G0 Z%.5f\n" % (self.__free_movement))
 
+    def compute_tool_runs(self, depth, depth_start):
+        tool_runs = int((depth - depth_start) / self.__tool_depth) + 1
+        tool_depth_per_run = (depth - depth_start) / tool_runs
+        return tool_runs, tool_depth_per_run
+
     def cylinder(self, pos_x, pos_y, diameter, depth,
                  depth_start=0):
         '''Create a (hole) cylinder
 
         pos_x and pos_y are the center with the diameter and depth.
         '''
-        tool_runs = int((depth - depth_start) / self.__tool_depth) + 1
-        tool_depth_per_run = (depth-depth_start) / tool_runs
+        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth, depth_start)
         
         self._w("(--- Create cylinder [%.5f, %.5f] diam [%.5f] depth [%.5f]"
                 " depth start [%.5f])\n"
@@ -82,7 +86,7 @@ Z%.5f
         self._w("    #3 = [#1 - %.5f]\n" % tool_radius)
         self._w("    F%d\n" % self.__feed_rate_work)
         self._w("    G1 X#2 Y%.5f\n" % (pos_y))
-        self._w("    G2 X#2 Y%.5f I#3\n" % (pos_y))
+        self._w("    G3 X#2 Y%.5f I#3\n" % (pos_y))
         self._w("    #1 = [#1 - %.5f]\n" % (self.__tool_diff))
         self._w("  %s endwhile\n" % (r_olabel))
         self._w("  G1 X%.5f Y%.5f\n" % (pos_x, pos_y))
@@ -91,8 +95,7 @@ Z%.5f
 
     def pocket(self, low_x, low_y, size_x, size_y, depth, depth_start=0):
         '''Create a pocket'''
-        tool_runs = int((depth - depth_start) / self.__tool_depth) + 1
-        tool_depth_per_run = (depth-depth_start) / tool_runs
+        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth, depth_start)
         
         self._w("(--- Create pocket [%.5f, %.5f] size [%.5f, %.5f] depth [%.5f]"
                 " depth start [%.5f])\n"
@@ -106,27 +109,27 @@ Z%.5f
         self._w("G0 X%.5f Y%.5f\n"
                 % (low_x + tool_radius, low_y + tool_radius))
         
-        # #1 - x (with tool diff included)
-        self._w("#1 = %.5f\n" % (low_x + tool_radius))
-        # #2 - y (with tool diff included)
-        self._w("#2 = %.5f\n" % (low_y + tool_radius))
-        # #3 - dx (with tool diff included)
-        self._w("#3 = %.5f\n" % (size_x - self.__tool_diameter))
-        # #4 - dy (with tool diff included)
-        self._w("#4 = %.5f\n" % (size_y - self.__tool_diameter))
         # #5 - z idx
         self._w("#5 = 1\n")
 
         self._w("F%d\n" % self.__feed_rate_work)
         z_olabel = self.next_o()
         self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
-        # #5 is Z
+        # #1 - x (with tool diff included)
+        self._w("  #1 = %.5f\n" % (low_x + tool_radius))
+        # #2 - y (with tool diff included)
+        self._w("  #2 = %.5f\n" % (low_y + tool_radius))
+        # #3 - dx (with tool diff included)
+        self._w("  #3 = %.5f\n" % (size_x - self.__tool_diameter))
+        # #4 - dy (with tool diff included)
+        self._w("  #4 = %.5f\n" % (size_y - self.__tool_diameter))
+        # #6 is Z
         self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
                 % (depth_start, tool_depth_per_run))
-        self._w("  Z#5\n")
+        self._w("  Z#6\n")
 
         r_olabel = self.next_o()
-        self._w("  %s while [#3 GE 0.0] AND [#4 GE 0.0]\n" % (r_olabel))
+        self._w("  %s while [#3 GE 0.0 AND #4 GE 0.0]\n" % (r_olabel))
         # One square
         self._w("    G1 X#1 Y#2\n")
         self._w("    X[#1 + #3]\n")
@@ -141,5 +144,35 @@ Z%.5f
         self._w("    #4 = [#4 - %.5f]\n" % (2 * self.__tool_diff))
 
         self._w("  %s endwhile\n" % (r_olabel))
+        self._w("  #5 = [#5 + 1]\n")
+        self._w("%s endwhile\n" % z_olabel)
+
+    def cutout_rect(self, low_x, low_y, size_x, size_y, depth, depth_start=0):
+        '''Create a rect coutout'''
+        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth, depth_start)
+        
+        self._w("(--- Create rect cutout [%.5f, %.5f] size [%.5f, %.5f] depth [%.5f]"
+                " depth start [%.5f])\n"
+                 % (low_x, low_y, size_x, size_y, depth, depth_start))
+
+        tool_radius = self.__tool_diameter / 2.0
+
+        self._w("G0 X%.5f Y%.5f\n" % (low_x - tool_radius, low_y - tool_radius))
+        
+        # #5 - z idx
+        self._w("#5 = 1\n")
+
+        self._w("F%d\n" % self.__feed_rate_work)
+        z_olabel = self.next_o()
+        self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
+        # #6 is Z
+        self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
+                % (depth_start, tool_depth_per_run))
+        self._w("  Z#6\n")
+        self._w("  G1 X%.5f Y%.5f\n" %(low_x - tool_radius, low_y - tool_radius))
+        self._w("  X%.5f\n" % (low_x + size_x + self.__tool_diameter))
+        self._w("  Y%.5f\n" % (low_y + size_y + self.__tool_diameter))
+        self._w("  X%.5f\n" % (low_x - tool_radius))
+        self._w("  Y%.5f\n" % (low_y - tool_radius))
         self._w("  #5 = [#5 + 1]\n")
         self._w("%s endwhile\n" % z_olabel)
