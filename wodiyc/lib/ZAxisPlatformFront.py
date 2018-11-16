@@ -2,7 +2,7 @@
 ZAxisPlatform Front
 '''
 
-from wodiyc.ZAxisPlatformCommon import ZAxisPlatformCommon
+from wodiyc.lib.ZAxisPlatformCommon import ZAxisPlatformCommon
 
 class ZAxisPlatformFront(ZAxisPlatformCommon):
     '''ZAxisPlatform - Front

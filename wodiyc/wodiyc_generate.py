@@ -4,9 +4,9 @@ The complete machine
 import argparse
 import yaml
 
-from wodiyc.ZAxisPlatformBack import ZAxisPlatformBack
-from wodiyc.ZAxisPlatformFront import ZAxisPlatformFront
-from wodiyc.gcode.GCodeGenerator import GCodeGenerator
+from wodiyc.lib.ZAxisPlatformBack import ZAxisPlatformBack
+from wodiyc.lib.ZAxisPlatformFront import ZAxisPlatformFront
+from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator
 
 
 def parse_args():

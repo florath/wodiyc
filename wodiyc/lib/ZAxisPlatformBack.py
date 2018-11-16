@@ -2,7 +2,7 @@
 ZAxisPlatform Back
 '''
 
-from wodiyc.ZAxisPlatformCommon import ZAxisPlatformCommon
+from wodiyc.lib.ZAxisPlatformCommon import ZAxisPlatformCommon
 
 class ZAxisPlatformBack(ZAxisPlatformCommon):
     '''ZAxisPlatform - Back
