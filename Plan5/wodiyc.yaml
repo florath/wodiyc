@@ -32,3 +32,5 @@ ZAxisPlatform: &ZAxixPlatform
   toolsupportholes_notch_depth:         6
 
 ZAxisPlatformBack: *ZAxixPlatform
+
+ZAxisPlatformFront: *ZAxixPlatform

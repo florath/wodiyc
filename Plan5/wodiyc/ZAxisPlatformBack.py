@@ -49,4 +49,3 @@ class ZAxisPlatformBack(ZAxisPlatformCommon):
                   real_cutout_length + 3,
                   self.cutouts_depth)
         gf.free_movement()
-

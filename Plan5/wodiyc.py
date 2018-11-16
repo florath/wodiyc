@@ -5,6 +5,7 @@ import argparse
 import yaml
 
 from wodiyc.ZAxisPlatformBack import ZAxisPlatformBack
+from wodiyc.ZAxisPlatformFront import ZAxisPlatformFront
 from wodiyc.gcode.GCodeGenerator import GCodeGenerator
 
 
@@ -34,5 +35,8 @@ def main():
     z_axix_platform_back = ZAxisPlatformBack(wodiyc)
     z_axix_platform_back.generate(gcg)
 
+    z_axix_platform_front = ZAxisPlatformFront(wodiyc)
+    z_axix_platform_front.generate(gcg)
+    
 if __name__ == '__main__':
     main()
