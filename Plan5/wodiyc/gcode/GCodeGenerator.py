@@ -184,9 +184,9 @@ Z%.5f
         self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
                 % (depth_start, tool_depth_per_run))
         self._w("  Z#6\n")
-        self._w("  G1 X%.5f Y%.5f\n" %(low_x - tool_radius, low_y - tool_radius))
-        self._w("  X%.5f\n" % (low_x + size_x + self.__tool_diameter))
-        self._w("  Y%.5f\n" % (low_y + size_y + self.__tool_diameter))
+        self._w("  G1 X%.5f Y%.5f\n" % (low_x - tool_radius, low_y - tool_radius))
+        self._w("  X%.5f\n" % (low_x + size_x + tool_radius))
+        self._w("  Y%.5f\n" % (low_y + size_y + tool_radius))
         self._w("  X%.5f\n" % (low_x - tool_radius))
         self._w("  Y%.5f\n" % (low_y - tool_radius))
         self._w("  #5 = [#5 + 1]\n")
@@ -227,14 +227,14 @@ Z%.5f
             self._w("  Z-%.5f\n" % (bridges_start_z))
             self._w("  X%.5f\n" % (low_x + delta_x_down * cutidx + delta_x_bridge + delta_x_offset))
             self._w("  Z#6\n")
-        self._w("  X%.5f\n" % (low_x + size_x + self.__tool_diameter))
+        self._w("  X%.5f\n" % (low_x + size_x + tool_radius))
 
         for cutidx in range(bridges_cnt_y):
             self._w("  Y%.5f\n" % (low_y + delta_y_down * cutidx + delta_y_offset))
             self._w("  Z-%.5f\n" % (bridges_start_z))
             self._w("  Y%.5f\n" % (low_y + delta_y_down * cutidx + delta_y_bridge + delta_y_offset))
             self._w("  Z#6\n")
-        self._w("  Y%.5f\n" % (low_y + size_y + self.__tool_diameter))
+        self._w("  Y%.5f\n" % (low_y + size_y + tool_radius))
 
         for cutidx in range(bridges_cnt_x):
             self._w("  X%.5f\n" % (low_x + delta_x_down * (bridges_cnt_x-cutidx-1) + delta_x_offset + delta_x_bridge))
