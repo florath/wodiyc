@@ -1,38 +1,44 @@
 '''
 GCode File - overall settings
 '''
+import os
+import pathlib
 
-class GCodeFile:
+
+class GCodeGenerator:
 
     def _w(self, s):
         self.__fd.write(s.encode())
 
-    def __init__(self, filename,
-                 feed_rate_work=500,
-                 feed_rate_move=1000,
-                 free_movement=7):
+    def __init__(self, config, output_dir="NGC"):
+
         self.__olabel = 0
-        self.__feed_rate_work = feed_rate_work
-        self.__feed_rate_move = feed_rate_move
-        self.__free_movement = free_movement
-        self.__fd = open(filename + ".ngc", "wb")
+
+        self.__feed_rate_work = config['feed_rates']['work']
+        self.__feed_rate_move = config['feed_rates']['move']
+        self.__free_movement = config['free_movement']
+
+        self.__tool_diameter = config['tools']['generic']['diameter']
+        self.__tool_diff = config['tools']['generic']['diff']
+        assert self.__tool_diameter >= self.__tool_diff
+        self.__tool_depth = config['tools']['generic']['depth']
+
+        self.__output_dir = output_dir
+        pathlib.Path(self.__output_dir).mkdir(parents=True, exist_ok=True) 
+
+    def open(self):
+        self.__fd = open(os.path.join(
+            self.__output_dir, self.__class__.__name__ + ".ngc"), "wb")
         self._w("""G21
 G17 G90
 T1 M06
 S12000.00 M03 G00 X0.000 Y0.000 Z7.000 F%d
 Z%.5f
-""" % (feed_rate_move, free_movement))
+""" % (self.__feed_rate_move, self.__free_movement))
 
     def close(self):
         self._w("M2\n")
         self.__fd.close()
-
-    def set_tool(self, tool_diameter, tool_diff, tool_depth=None):
-        assert tool_diameter >= tool_diff
-        self.__tool_diameter = tool_diameter
-        self.__tool_diff = tool_diff
-        self.__tool_depth = tool_depth if tool_depth is not None \
-                            else tool_diameter / 2.0
 
     def next_o(self):
         self.__olabel += 1

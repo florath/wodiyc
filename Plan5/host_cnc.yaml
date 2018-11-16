@@ -1,0 +1,17 @@
+---
+# The config used for cutting the machine itself
+# This is the host config - where the wodiyc is build on
+
+feed_rates:
+  work: 500
+  move: 1000
+free_movement: 7
+
+tools:
+  generic:
+    diameter: 2.675
+    # difference / overlapping path when cutting
+    diff: 2.5
+    # This gives good results - for the costs of long
+    # cutting times
+    depth: 0.4
