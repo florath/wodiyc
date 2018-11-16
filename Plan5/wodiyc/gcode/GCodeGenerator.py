@@ -26,9 +26,9 @@ class GCodeGenerator:
         self.__output_dir = output_dir
         pathlib.Path(self.__output_dir).mkdir(parents=True, exist_ok=True) 
 
-    def open(self):
+    def open(self, filename):
         self.__fd = open(os.path.join(
-            self.__output_dir, self.__class__.__name__ + ".ngc"), "wb")
+            self.__output_dir, filename + ".ngc"), "wb")
         self._w("""G21
 G17 G90
 T1 M06

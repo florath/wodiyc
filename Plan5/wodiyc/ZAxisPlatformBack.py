@@ -28,7 +28,7 @@ class ZAxisPlatformBack(ZAxisPlatformCommon):
         # Screw
         gf.cylinder(
             x, self.toolsupportholes_distance_from_edge,
-            self.toolsupportholes_notch_diameter, self.z_size,
+            self.toolsupportholes_diameter, self.z_size,
             self.toolsupportholes_notch_depth)
         gf.free_movement()
 

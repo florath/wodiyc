@@ -13,24 +13,6 @@ class ZAxisPlatformCommon:
 
         self.__dict__.update(cfg)
 
-#        self._cutout_distance = cutout_distance
-#        self._cutout_length = cutout_length
-#        self._cutout_length_add = cutout_length_add
-#        self._cutout_width = cutout_width
-#        self._cutout_depth = cutout_depth
-
-#        self._tool_support_hole_diameter = tool_support_hole_diameter
-#        self._tool_support_hole_distance = tool_support_hole_distance
-#        self._tool_support_hole_distance_from_edge = tool_support_hole_distance_from_edge
-#        self._tool_support_hole_notch_diameter = tool_support_hole_notch_diameter
-#        self._tool_support_hole_notch_depth = tool_support_hole_notch_depth
-
-#        self._screw_hole_diameter = screw_hole_diameter
-#        self._screw_hole_distance_from_edge \
-#            = screw_hole_distance_from_edge
-#        self._screw_notch_diameter = screw_notch_diameter
-#        self._screw_notch_depth = screw_notch_depth
-
     def tool_support_holes(self, gf):
         # Screw holes for the tool support
         for x in (self.x_size / 2 - self.toolsupportholes_distance / 2,
@@ -76,7 +58,7 @@ class ZAxisPlatformCommon:
         gf.free_movement()
 
     def generate(self, gf):
-        gf.open()
+        gf.open(self.__class__.__name__)
         # Screw holes for the tool support
         self.tool_support_holes(gf)
         # Lower holes for screws to fit front and back together
