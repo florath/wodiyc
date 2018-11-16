@@ -15,7 +15,7 @@ class GCodeFile:
         self.__feed_rate_work = feed_rate_work
         self.__feed_rate_move = feed_rate_move
         self.__free_movement = free_movement
-        self.__fd = open(filename + ".ng", "wb")
+        self.__fd = open(filename + ".ngc", "wb")
         self._w("""G21
 G17 G90
 T1 M06
@@ -41,9 +41,9 @@ Z%.5f
     def free_movement(self):
         self._w("G0 Z%.5f\n" % (self.__free_movement))
 
-    def compute_tool_runs(self, depth, depth_start):
-        tool_runs = int((depth - depth_start) / self.__tool_depth) + 1
-        tool_depth_per_run = (depth - depth_start) / tool_runs
+    def compute_tool_runs(self, depth):
+        tool_runs = int((depth) / self.__tool_depth) + 1
+        tool_depth_per_run = (depth) / tool_runs
         return tool_runs, tool_depth_per_run
 
     def cylinder(self, pos_x, pos_y, diameter, depth,
@@ -52,7 +52,7 @@ Z%.5f
 
         pos_x and pos_y are the center with the diameter and depth.
         '''
-        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth, depth_start)
+        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth - depth_start)
         
         self._w("(--- Create cylinder [%.5f, %.5f] diam [%.5f] depth [%.5f]"
                 " depth start [%.5f])\n"
@@ -95,7 +95,7 @@ Z%.5f
 
     def pocket(self, low_x, low_y, size_x, size_y, depth, depth_start=0):
         '''Create a pocket'''
-        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth, depth_start)
+        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth - depth_start)
         
         self._w("(--- Create pocket [%.5f, %.5f] size [%.5f, %.5f] depth [%.5f]"
                 " depth start [%.5f])\n"
@@ -147,10 +147,17 @@ Z%.5f
         self._w("  #5 = [#5 + 1]\n")
         self._w("%s endwhile\n" % z_olabel)
 
-    def cutout_rect(self, low_x, low_y, size_x, size_y, depth, depth_start=0):
-        '''Create a rect coutout'''
-        tool_runs, tool_depth_per_run = self.compute_tool_runs(depth, depth_start)
+    def cutout_rect(self, low_x, low_y, size_x, size_y,
+                    depth, depth_start=0,
+                    bridges_width=2.5, bridges_height=2.5, bridges_distance=70):
+        '''Create a rect coutout
         
+        Bridges are included.
+        '''
+        bridges_start_z = depth - bridges_height - depth_start
+        tool_runs, tool_depth_per_run \
+            = self.compute_tool_runs(bridges_start_z)
+
         self._w("(--- Create rect cutout [%.5f, %.5f] size [%.5f, %.5f] depth [%.5f]"
                 " depth start [%.5f])\n"
                  % (low_x, low_y, size_x, size_y, depth, depth_start))
@@ -158,7 +165,9 @@ Z%.5f
         tool_radius = self.__tool_diameter / 2.0
 
         self._w("G0 X%.5f Y%.5f\n" % (low_x - tool_radius, low_y - tool_radius))
-        
+
+        ### The part of the rect that does not touch the bridges
+
         # #5 - z idx
         self._w("#5 = 1\n")
 
@@ -174,5 +183,66 @@ Z%.5f
         self._w("  Y%.5f\n" % (low_y + size_y + self.__tool_diameter))
         self._w("  X%.5f\n" % (low_x - tool_radius))
         self._w("  Y%.5f\n" % (low_y - tool_radius))
+        self._w("  #5 = [#5 + 1]\n")
+        self._w("%s endwhile\n" % z_olabel)
+
+        ### Bridges handling
+        tool_runs, tool_depth_per_run \
+            = self.compute_tool_runs(bridges_height)
+
+        # Compute bridges
+        bridges_cnt_x = int(size_x / bridges_distance) + 1
+        bridges_cnt_y = int(size_y / bridges_distance) + 1
+
+        print("BRIDGES ", bridges_cnt_x, bridges_cnt_y)
+        print(tool_runs, tool_depth_per_run)
+        
+        # #5 - z idx
+        self._w("#5 = 1\n")
+
+        z_olabel = self.next_o()
+        self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
+        # #6 is Z
+        self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
+                % (bridges_start_z, tool_depth_per_run))
+        self._w("  Z#6\n")
+        self._w("  G1 X%.5f Y%.5f\n" % (low_x - tool_radius, low_y - tool_radius))
+
+        delta_x_down = size_x / bridges_cnt_x - bridges_width / 2
+        delta_x_offset = delta_x_down / 2
+        delta_x_bridge = 2 * tool_radius + bridges_width
+
+        delta_y_down = size_y / bridges_cnt_y - bridges_width / 2
+        delta_y_offset = delta_y_down / 2
+        delta_y_bridge = 2 * tool_radius + bridges_width
+
+        for cutidx in range(bridges_cnt_x):
+            self._w("  X%.5f\n" % (low_x + delta_x_down * cutidx + delta_x_offset))
+            self._w("  Z-%.5f\n" % (bridges_start_z))
+            self._w("  X%.5f\n" % (low_x + delta_x_down * cutidx + delta_x_bridge + delta_x_offset))
+            self._w("  Z#6\n")
+        self._w("  X%.5f\n" % (low_x + size_x + self.__tool_diameter))
+
+        for cutidx in range(bridges_cnt_y):
+            self._w("  Y%.5f\n" % (low_y + delta_y_down * cutidx + delta_y_offset))
+            self._w("  Z-%.5f\n" % (bridges_start_z))
+            self._w("  Y%.5f\n" % (low_y + delta_y_down * cutidx + delta_y_bridge + delta_y_offset))
+            self._w("  Z#6\n")
+        self._w("  Y%.5f\n" % (low_y + size_y + self.__tool_diameter))
+
+        for cutidx in range(bridges_cnt_x):
+            self._w("  X%.5f\n" % (low_x + delta_x_down * (bridges_cnt_x-cutidx-1) + delta_x_offset + delta_x_bridge))
+            self._w("  Z-%.5f\n" % (bridges_start_z))
+            self._w("  X%.5f\n" % (low_x + delta_x_down * (bridges_cnt_x-cutidx-1) + delta_x_offset))
+            self._w("  Z#6\n")
+        self._w("  X%.5f\n" % (low_x - tool_radius))
+
+        for cutidx in range(bridges_cnt_y):
+            self._w("  Y%.5f\n" % (low_y + delta_y_down * (bridges_cnt_y-cutidx-1) + delta_y_offset + delta_x_bridge))
+            self._w("  Z-%.5f\n" % (bridges_start_z))
+            self._w("  Y%.5f\n" % (low_y + delta_y_down * (bridges_cnt_y-cutidx-1) + delta_y_offset))
+            self._w("  Z#6\n")
+        self._w("  Y%.5f\n" % (low_y - tool_radius))
+
         self._w("  #5 = [#5 + 1]\n")
         self._w("%s endwhile\n" % z_olabel)

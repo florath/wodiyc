@@ -2,6 +2,8 @@
 ZAxisPlatform Back
 '''
 
+import woodiyc.ZAxisPlatformCommon
+
 class ZAxisPlatformBack:
     '''ZAxisPlatform - Back
 
@@ -14,91 +16,54 @@ class ZAxisPlatformBack:
     front
     '''
     
-    def __init__(
-            self,
+    def __init__(self, zacommon):
+        self._zac = zacommon
 
-            # Overall
-            platform_x=120,  # Width
-            platform_y=335,  # Height
-            platform_z=16,   # Thick
+    @staticmethod
+    def _cb_tool_support_holes(zac, gf, x):
+        # Notch
+        gf.cylinder(
+            x, zac._tool_support_hole_distance_from_edge,
+            zac._tool_support_hole_notch_diameter,
+            zac._tool_support_hole_notch_depth)
+        # Screw
+        gf.cylinder(
+            x, zac._tool_support_hole_distance_from_edge,
+            zac._tool_support_hole_diameter,  zac._platform_z,
+            zac._tool_support_hole_notch_depth)
+        gf.free_movement()
 
-            # Cutoffs
-            # Center to center distance 
-            cutout_distance=60,
-            cutout_length=150,
-            # This is added to the cutout because
-            # of the inner radius of the tool.
-            cutout_length_add=10,
-            cutout_width=19,
-            cutout_depth=6,
+    @staticmethod
+    def _cb_upper_part_screws(zac, gf, x, y):
+        # Screw
+        gf.cylinder(
+            x, y,
+            zac._screw_hole_diameter, zac._platform_z,
+            zac._cutout_depth)
+        gf.free_movement()
 
-            # Screw holes
-            screw_hole_diameter=6.2,
-            screw_hole_distance_from_edge=25,
-            # There are some notches that the bolts do not raise
-            # above the surface
-            screw_notch_diameter=15,
-            screw_notch_depth=4):
-
-        self.__platform_x = platform_x
-        self.__platform_y = platform_y
-        self.__platform_z = platform_z
-        self.__cutout_distance = cutout_distance
-        self.__cutout_length = cutout_length
-        self.__cutout_length_add = cutout_length_add
-        self.__cutout_width = cutout_width
-        self.__cutout_depth = cutout_depth
-        self.__screw_hole_diameter = screw_hole_diameter
-        self.__screw_hole_distance_from_edge \
-            = screw_hole_distance_from_edge
-        self.__screw_notch_diameter = screw_notch_diameter
-        self.__screw_notch_depth = screw_notch_depth
+    @staticmethod
+    def _cb_upper_part(zac, gf, x):
+        real_cutout_length = zac._cutout_length + zac._cutout_length_add
+        gf.pocket(x - zac._cutout_width / 2,
+                  zac._platform_y - real_cutout_length,
+                  zac._cutout_width,
+                  # Increase the cutout a bit to get a clean cut
+                  real_cutout_length + 3,
+                  zac._cutout_depth)
+        gf.free_movement()
 
     def generate_gcode(self, gf):
-        # Lower holes for scrwes to fit front and back together
-        for x in (self.__screw_hole_distance_from_edge,
-                  self.__platform_x
-                  - self.__screw_hole_distance_from_edge):
-            for y in (self.__screw_hole_distance_from_edge,
-                      self.__platform_y
-                      - self.__cutout_length
-                      - self.__screw_notch_diameter
-                      - self.__screw_hole_distance_from_edge):
-                # Notch
-                gf.cylinder(
-                    x, y,
-                    self.__screw_notch_diameter, self.__screw_notch_depth)
-                # Screw
-                gf.cylinder(
-                    x, y,
-                    self.__screw_hole_diameter, self.__platform_z,
-                    self.__screw_notch_depth)
-                gf.free_movement()
-            
-        # pockets
-        for px in (self.__platform_x / 2 - self.__cutout_distance / 2,
-                   self.__platform_x / 2 + self.__cutout_distance / 2 ):
-            real_cutout_length = self.__cutout_length + self.__cutout_length_add
-            gf.pocket(px - self.__cutout_width / 2,
-                      self.__platform_y - real_cutout_length,
-                      self.__cutout_width,
-                      # Increase the cutout a bit to get a clean cut
-                      real_cutout_length + 3,
-                      self.__cutout_depth)
-            gf.free_movement()
+        zac = self._zac
+        # Screw holes for the tool support
+        zac._tool_support_holes(gf, ZAxisPlatformBack._cb_tool_support_holes)
 
-            for sy in ( self.__platform_y - real_cutout_length
-                        + self.__screw_hole_distance_from_edge,
-                        self.__platform_y
-                        - self.__screw_hole_distance_from_edge ):
-                # Screw
-                gf.cylinder(
-                    px, sy,
-                    self.__screw_hole_diameter, self.__platform_z,
-                    self.__screw_notch_depth)
-                gf.free_movement()
+        # Lower holes for screws to fit front and back together
+        zac._lower_screw_holes(gf)
 
-        # Cutout the complete platform
-        gf.cutout_rect(0, 0, self.__platform_x, self.__platform_y,
-                       self.__platform_z)
-        gf.free_movement()
+        # Pockets and screws
+        zac._upper_part(gf, ZAxisPlatformBack._cb_upper_part,
+                        ZAxisPlatformBack._cb_upper_part_screws)
+        
+        # Platform
+        zac._platform(gf)
