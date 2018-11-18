@@ -9,7 +9,8 @@ free_movement: 7
 
 tools:
   1:
-    diameter: 2.675
+    diameter: 2.8
+    # diameter: 2.675
     # difference / overlapping path when cutting
     diff: 2.5
     # This gives good results - for the costs of long

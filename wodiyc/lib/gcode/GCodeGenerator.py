@@ -114,7 +114,7 @@ Z%.5f
         # Goto initial position
         self._w("G0 X%.5f Y%.5f\n"
                 % (low_x + tool_radius, low_y + tool_radius))
-        
+
         # #5 - z idx
         self._w("#5 = 1\n")
 
