@@ -61,6 +61,7 @@ The license is chosen in a way that commercial use of the plans and of
 course of any CNC milling machine is allowed.  But if you change the
 plans you have also to publish the changes.
 
+
 Happy Milling.
 
 Andreas Florath
