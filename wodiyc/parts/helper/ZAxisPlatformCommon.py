@@ -1,6 +1,8 @@
 '''
 ZAxisPlatform Common
 '''
+from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator
+
 
 class ZAxisPlatformCommon:
     '''ZAxisPlatform Common
@@ -8,10 +10,10 @@ class ZAxisPlatformCommon:
     The common part of the ZAxis Platform. It contains all
     the measurements and the common part of back and front.
     '''
-    def __init__(self, config):
+    def __init__(self, host_cnc, config):
         cfg = config[self.__class__.__name__]
-
         self.__dict__.update(cfg)
+        self.__gf = GCodeGenerator(host_cnc)
 
     def tool_support_holes(self, gf):
         # Screw holes for the tool support
@@ -57,14 +59,14 @@ class ZAxisPlatformCommon:
         gf.cutout_rect(0, 0, self.x_size, self.y_size, self.z_size)
         gf.free_movement()
 
-    def generate(self, gf):
-        gf.open(self.__class__.__name__)
+    def generate(self):
+        self.__gf.open(self.__class__.__name__)
         # Screw holes for the tool support
-        self.tool_support_holes(gf)
+        self.tool_support_holes(self.__gf)
         # Lower holes for screws to fit front and back together
-        self.lower_screw_holes(gf)
+        self.lower_screw_holes(self.__gf)
         # Pockets and screws
-        self.upper_part(gf)
+        self.upper_part(self.__gf)
         # Platform
-        self.platform(gf)
-        gf.close()
+        self.platform(self.__gf)
+        self.__gf.close()

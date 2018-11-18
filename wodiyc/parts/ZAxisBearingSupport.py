@@ -60,10 +60,10 @@ class ZAxisBearingSupport:
 
     def generate(self):
         self.__gf_right_front.open("%s-Right-Front" % self.__class__.__name__)
-        self.platform()
         self.cross_nuts()
         self.bearing_screws()
         self.cutouts()
+        self.platform()
         self.__gf_right_front.close()
 
         self.__gf_right_back.open("%s-Right-Back" % self.__class__.__name__)

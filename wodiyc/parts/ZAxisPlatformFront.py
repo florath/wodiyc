@@ -2,7 +2,7 @@
 ZAxisPlatform Front
 '''
 
-from wodiyc.lib.ZAxisPlatformCommon import ZAxisPlatformCommon
+from wodiyc.parts.helper.ZAxisPlatformCommon import ZAxisPlatformCommon
 
 class ZAxisPlatformFront(ZAxisPlatformCommon):
     '''ZAxisPlatform - Front
@@ -11,8 +11,8 @@ class ZAxisPlatformFront(ZAxisPlatformCommon):
     tool is mounted and the back where the rails are mounted.
     '''
 
-    def __init__(self, wodiyc):
-        super().__init__(wodiyc)
+    def __init__(self, host_cnc, wodiyc):
+        super().__init__(host_cnc, wodiyc)
 
     def tool_support_holes_callback(self, gf, x):
         # Screw

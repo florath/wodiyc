@@ -2,7 +2,7 @@
 ZAxisPlatform Back
 '''
 
-from wodiyc.lib.ZAxisPlatformCommon import ZAxisPlatformCommon
+from wodiyc.parts.helper.ZAxisPlatformCommon import ZAxisPlatformCommon
 
 class ZAxisPlatformBack(ZAxisPlatformCommon):
     '''ZAxisPlatform - Back
@@ -16,8 +16,8 @@ class ZAxisPlatformBack(ZAxisPlatformCommon):
     front
     '''
 
-    def __init__(self, wodiyc):
-        super().__init__(wodiyc)
+    def __init__(self, host_cnc, wodiyc):
+        super().__init__(host_cnc, wodiyc)
 
     def tool_support_holes_callback(self, gf, x):
         # Notch

@@ -18,10 +18,10 @@ class GCodeGenerator:
         self.__feed_rate_move = config['feed_rates']['move']
         self.__free_movement = config['free_movement']
 
-        self.__tool_diameter = config['tools']['generic']['diameter']
-        self.__tool_diff = config['tools']['generic']['diff']
+        self.__tool_diameter = config['tools'][1]['diameter']
+        self.__tool_diff = config['tools'][1]['diff']
         assert self.__tool_diameter >= self.__tool_diff
-        self.__tool_depth = config['tools']['generic']['depth']
+        self.__tool_depth = config['tools'][1]['depth']
 
         self.__output_dir = output_dir
         pathlib.Path(self.__output_dir).mkdir(parents=True, exist_ok=True) 
@@ -251,4 +251,37 @@ Z%.5f
         self._w("  Y%.5f\n" % (low_y - tool_radius))
 
         self._w("  #5 = [#5 + 1]\n")
+        self._w("%s endwhile\n" % z_olabel)
+
+    def line(self, start_x, start_y, end_x, end_y, depth,
+                 depth_start=0):
+        '''Create a line using the current tool'''
+        tool_runs, tool_depth_per_run \
+            = self.compute_tool_runs(depth - depth_start)
+        
+        self._w("(--- Create line [%.5f, %.5f] to [%.5f, %.5f] depth [%.5f]"
+                " depth start [%.5f])\n"
+                 % (start_x, start_y, end_x, end_y, depth, depth_start))
+
+        tool_radius = self.__tool_diameter / 2.0
+
+        # Position tool
+        self._w("F%d\n" % self.__feed_rate_move)
+        self._w("G0 X%.5f Y%.5f\n" % (start_x, start_y))
+        # #4 is Z idx
+        self._w("#4 = 1\n")
+        z_olabel = self.next_o()
+        self._w("%s while [#4 LE %d]\n" % (z_olabel, tool_runs))
+        # #5 is Z
+        self._w("  #5 = [-%.5f + #4 * -%.5f]\n"
+                % (depth_start, tool_depth_per_run))
+        self._w("  Z#5\n")
+        self._w("  G1 X%.5f Y%.5f\n" % (end_x, end_y))
+        self._w("  #4 = [#4 + 1]\n")
+        zif_olabel = self.next_o()
+        self._w("  %s if [#4 GT %d]\n" % (zif_olabel, tool_runs))
+        self._w("    %s break\n" % z_olabel)
+        self._w("  %s endif\n" % (zif_olabel))
+        self._w("  G1 X%.5f Y%.5f\n" % (start_x, start_y))
+        self._w("  #4 = [#4 + 1]\n")
         self._w("%s endwhile\n" % z_olabel)

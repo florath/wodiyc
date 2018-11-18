@@ -2,11 +2,9 @@
 The complete machine
 '''
 import argparse
+import importlib
+import inspect
 import yaml
-
-from wodiyc.lib.ZAxisPlatformBack import ZAxisPlatformBack
-from wodiyc.lib.ZAxisPlatformFront import ZAxisPlatformFront
-from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator
 
 
 def parse_args():
@@ -30,13 +28,16 @@ def parse_args():
 
 def main():
     wodiyc, host_cnc = parse_args()
-    gcg = GCodeGenerator(host_cnc)
 
-    z_axix_platform_back = ZAxisPlatformBack(wodiyc)
-    z_axix_platform_back.generate(gcg)
+    # Import all parts and generate them
+    module_parts = importlib.import_module("wodiyc.parts")
 
-    z_axix_platform_front = ZAxisPlatformFront(wodiyc)
-    z_axix_platform_front.generate(gcg)
-    
+    for module_name in module_parts.__all__:
+        module = importlib.import_module("wodiyc.parts.%s" % module_name)
+        part_class = getattr(module, module_name)
+        instance = part_class(host_cnc, wodiyc)
+        instance.generate()
+
+
 if __name__ == '__main__':
     main()
