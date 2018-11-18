@@ -10,11 +10,16 @@ class SupportStandard:
     def __init__(self, host_cnc, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
-        self.__gf_part = GCodeGenerator(host_cnc)
-        self.__gf_holes_horizontal = GCodeGenerator(host_cnc)
-        self.__gf_holes_vertical = GCodeGenerator(host_cnc)
-        self.__gf_v_part = GCodeGenerator(host_cnc)
-        self.__gf_v_front = GCodeGenerator(host_cnc)
+        self.__gf_part = GCodeGenerator(
+            host_cnc, "%s-Part" % self.__class__.__name__)
+        self.__gf_holes_horizontal = GCodeGenerator(
+            host_cnc, "%s-Holes-Horizontal" % self.__class__.__name__)
+        self.__gf_holes_vertical = GCodeGenerator(
+            host_cnc, "%s-Holes-Vertical" % self.__class__.__name__)            
+        self.__gf_v_part = GCodeGenerator(
+            host_cnc, "%s-VPart" % self.__class__.__name__)
+        self.__gf_v_front = GCodeGenerator(
+            host_cnc, "%s-VPart-Front" % self.__class__.__name__)
 
     def platform(self):
         for gf in [self.__gf_part, self.__gf_v_part]:
@@ -107,15 +112,6 @@ class SupportStandard:
                 self.__gf_v_front.free_movement()
 
     def generate(self):
-        self.__gf_part.open("%s-Part" % self.__class__.__name__)
-        self.__gf_holes_horizontal.open(
-            "%s-Holes-Horizontal" % self.__class__.__name__)
-        self.__gf_holes_vertical.open(
-            "%s-Holes-Vertical" % self.__class__.__name__)
-        self.__gf_v_part.open(
-            "%s-VPart" % self.__class__.__name__)
-        self.__gf_v_front.open(
-            "%s-VPart-Front" % self.__class__.__name__)
         self.screws()
         self.cutouts()
         self.platform()

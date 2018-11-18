@@ -13,7 +13,7 @@ class ZAxisPlatformCommon:
     def __init__(self, host_cnc, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
-        self.__gf = GCodeGenerator(host_cnc)
+        self.__gf = GCodeGenerator(host_cnc, self.__class__.__name__)
 
     def tool_support_holes(self, gf):
         # Screw holes for the tool support
@@ -60,7 +60,6 @@ class ZAxisPlatformCommon:
         gf.free_movement()
 
     def generate(self):
-        self.__gf.open(self.__class__.__name__)
         # Screw holes for the tool support
         self.tool_support_holes(self.__gf)
         # Lower holes for screws to fit front and back together

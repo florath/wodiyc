@@ -10,11 +10,10 @@ class Reference:
     def __init__(self, host_cnc, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
-        self.__gf = GCodeGenerator(host_cnc)
+        self.__gf = GCodeGenerator(
+            host_cnc, "%s" % self.__class__.__name__)
     
     def generate(self):
-        self.__gf.open("%s" % self.__class__.__name__)
-
         self.__gf.cylinder(
             15, 20, 10, self.z_size)
         self.__gf.free_movement()

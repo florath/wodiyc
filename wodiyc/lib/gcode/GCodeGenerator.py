@@ -10,7 +10,7 @@ class GCodeGenerator:
     def _w(self, s):
         self.__fd.write(s.encode())
 
-    def __init__(self, config, output_dir="NGC"):
+    def __init__(self, config, filename, output_dir="NGC"):
 
         self.__olabel = 0
 
@@ -26,7 +26,6 @@ class GCodeGenerator:
         self.__output_dir = output_dir
         pathlib.Path(self.__output_dir).mkdir(parents=True, exist_ok=True) 
 
-    def open(self, filename):
         self.__fd = open(os.path.join(
             self.__output_dir, filename + ".ngc"), "wb")
         self._w("""G21

@@ -11,8 +11,10 @@ class ZAxisBearingSupport:
     def __init__(self, host_cnc, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
-        self.__gf_right_front = GCodeGenerator(host_cnc)
-        self.__gf_right_back = GCodeGenerator(host_cnc)
+        self.__gf_right_front = GCodeGenerator(
+            host_cnc, "%s-Right-Front" % self.__class__.__name__)
+        self.__gf_right_back = GCodeGenerator(
+            host_cnc, "%s-Right-Back" % self.__class__.__name__)
 
         self.__bearing_center \
             = math.sqrt(self.bearing_leg * self.bearing_leg / 2)
@@ -59,14 +61,12 @@ class ZAxisBearingSupport:
                 self.__gf_right_front.free_movement()
 
     def generate(self):
-        self.__gf_right_front.open("%s-Right-Front" % self.__class__.__name__)
         self.cross_nuts()
         self.bearing_screws()
         self.cutouts()
         self.platform()
         self.__gf_right_front.close()
 
-        self.__gf_right_back.open("%s-Right-Back" % self.__class__.__name__)
         for y in (self.y_size - self.cutout_distance,
                   self.cutout_distance):
             for x in (self.cutout_screwhole_distance_from_edge,

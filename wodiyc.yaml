@@ -38,8 +38,8 @@ SupportStandard:
   cutout_distance: 180
 
 Reference:
-  z_size: 16
-  
+  z_size: 12
+
 ### Z Axis
 
 ZAxisPlatform: &ZAxixPlatform
@@ -47,7 +47,7 @@ ZAxisPlatform: &ZAxixPlatform
   y_size: 335
   # For each: front and back
   # The complete result will be twice as thick
-  z_size:  16 
+  z_size:  16
 
   cutouts_distance:      60
   cutouts_length:       150
