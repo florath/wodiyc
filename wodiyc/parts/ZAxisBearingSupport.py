@@ -18,7 +18,7 @@ class ZAxisBearingSupport:
 
         self.__bearing_center \
             = math.sqrt(self.bearing_leg * self.bearing_leg / 2)
-        
+
     def platform(self):
         self.__gf_right_front.cutout_rect(
             0, 0, self.x_size, self.y_size, self.z_size)
@@ -48,8 +48,8 @@ class ZAxisBearingSupport:
         for y in (self.y_size - self.cutout_distance,
                   self.cutout_distance):
             self.__gf_right_front.pocket(-2, y - self.cutout_width / 2,
-                      self.x_size + 4, self.cutout_width,
-                      self.cutout_depth)
+                                         self.x_size + 4, self.cutout_width,
+                                         self.cutout_depth)
             self.__gf_right_front.free_movement()
 
             # Holes to fix the platform of the Z backlash nut
@@ -75,7 +75,7 @@ class ZAxisBearingSupport:
                     x, y, self.screwhole_notch_diameter,
                     self.screwhole_notch_depth)
                 self.__gf_right_back.free_movement()
-            
+
         for x in (self.bearing_distance_from_edge,
                   self.bearing_distance_from_edge + 2 * self.__bearing_center):
             self.__gf_right_back.line(

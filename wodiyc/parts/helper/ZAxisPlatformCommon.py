@@ -34,7 +34,8 @@ class ZAxisPlatformCommon:
                 # Notch
                 gf.cylinder(
                     x, y,
-                    self.screwholes_notch_diameter, self.screwholes_notch_depth)
+                    self.screwholes_notch_diameter,
+                    self.screwholes_notch_depth)
                 # Screw
                 gf.cylinder(
                     x, y,
@@ -45,7 +46,7 @@ class ZAxisPlatformCommon:
     def upper_part(self, gf):
         # pockets
         for px in (self.x_size / 2 - self.cutouts_distance / 2,
-                   self.x_size / 2 + self.cutouts_distance / 2 ):
+                   self.x_size / 2 + self.cutouts_distance / 2):
             self.upper_part_callback(gf, px)
 
             for sy in (self.y_size - self.cutouts_length

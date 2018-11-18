@@ -3,7 +3,6 @@ The complete machine
 '''
 import argparse
 import importlib
-import inspect
 import yaml
 
 
@@ -27,6 +26,7 @@ def parse_args():
 
 
 def main():
+    '''Generate all files for the Wodiyc'''
     wodiyc, host_cnc = parse_args()
 
     # Import all parts and generate them

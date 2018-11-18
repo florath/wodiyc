@@ -12,7 +12,7 @@ class Reference:
         self.__dict__.update(cfg)
         self.__gf = GCodeGenerator(
             host_cnc, "%s" % self.__class__.__name__)
-    
+
     def generate(self):
         self.__gf.cylinder(
             15, 20, 10, self.z_size)
@@ -33,5 +33,5 @@ class Reference:
         self.__gf.cutout_rect(
             0, 0, 70, 50, self.z_size)
         self.__gf.free_movement()
-        
+
         self.__gf.close()

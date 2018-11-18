@@ -4,6 +4,7 @@ ZAxisPlatform Front
 
 from wodiyc.parts.helper.ZAxisPlatformCommon import ZAxisPlatformCommon
 
+
 class ZAxisPlatformFront(ZAxisPlatformCommon):
     '''ZAxisPlatform - Front
 

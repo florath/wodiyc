@@ -15,7 +15,7 @@ class SupportStandard:
         self.__gf_holes_horizontal = GCodeGenerator(
             host_cnc, "%s-Holes-Horizontal" % self.__class__.__name__)
         self.__gf_holes_vertical = GCodeGenerator(
-            host_cnc, "%s-Holes-Vertical" % self.__class__.__name__)            
+            host_cnc, "%s-Holes-Vertical" % self.__class__.__name__)
         self.__gf_v_part = GCodeGenerator(
             host_cnc, "%s-VPart" % self.__class__.__name__)
         self.__gf_v_front = GCodeGenerator(
@@ -42,7 +42,7 @@ class SupportStandard:
                 for gf in [self.__gf_part, self.__gf_v_part]:
                     # Notch
                     gf.cylinder(
-                        x, y, 
+                        x, y,
                         self.screwhole_notch_diameter,
                         self.screwhole_notch_depth)
                     # Screw
@@ -95,7 +95,7 @@ class SupportStandard:
                     self.screwhole_diameter,
                     self.z_size, self.cutout_depth)
                 self.__gf_v_part.free_movement()
-                
+
             # Front
             self.__gf_v_front.pocket(x - self.z_size/2, - 2,
                                      self.z_size, self.v_y_size + 4,
