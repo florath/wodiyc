@@ -5,7 +5,7 @@ Support Standard
 from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator
 
 
-class SupportStandard:
+class Support:
 
     def __init__(self, host_cnc, config):
         cfg = config[self.__class__.__name__]
@@ -20,6 +20,13 @@ class SupportStandard:
             host_cnc, "%s-VPart" % self.__class__.__name__)
         self.__gf_v_front = GCodeGenerator(
             host_cnc, "%s-VPart-Front" % self.__class__.__name__)
+
+        self.__host_cnc = host_cnc
+        
+        # for loops
+        self._loop_support_scews_dists \
+            = (self.screwhole_distance_from_edge_small,
+               2 * self.screwhole_distance_from_edge_small)
 
     def platform(self):
         for gf in [self.__gf_part, self.__gf_v_part]:
@@ -63,6 +70,13 @@ class SupportStandard:
                     self.sleeve_depth)
                 self.__gf_holes_vertical.free_movement()
 
+            # Cross Nuts
+            self.__gf_v_front.cylinder(
+                x, self.cross_nut_distance_from_edge,
+                self.cross_nut_diameter,
+                self.z_size)
+            self.__gf_v_front.free_movement()
+
     def cutouts(self):
         # The big one
         self.__gf_v_part.pocket(-2, self.y_size - self.z_size,
@@ -87,9 +101,7 @@ class SupportStandard:
             self.__gf_v_part.free_movement()
 
             # Part
-            for y in (self.screwhole_distance_from_edge,
-                      self.y_size - self.z_size
-                      - self.screwhole_distance_from_edge):
+            for y in self._loop_support_scews_dists:
                 self.__gf_v_part.cylinder(
                     x, y,
                     self.screwhole_diameter,
@@ -102,14 +114,35 @@ class SupportStandard:
                                      self.cutout_depth)
             self.__gf_v_front.free_movement()
 
-            for y in (self.screwhole_distance_from_edge,
-                      self.v_y_size
-                      - self.screwhole_distance_from_edge):
+            for y in self._loop_support_scews_dists:
                 self.__gf_v_front.cylinder(
-                    x, y,
+                    x, self.v_y_size - y,
                     self.screwhole_diameter,
                     self.z_size, self.cutout_depth)
                 self.__gf_v_front.free_movement()
+
+    def support(self):
+        gf = GCodeGenerator(
+            self.__host_cnc, "%s-VPart-Support" % self.__class__.__name__)
+
+        support_x_size = self.y_size - self.z_size + self.cutout_depth
+        support_y_size = self.v_y_size + self.cutout_depth
+
+        for x in self._loop_support_scews_dists:
+            gf.cylinder(x, self.cross_nut_distance_from_edge,
+                        self.cross_nut_diameter, self.z_size)
+            gf.free_movement()
+
+        for y in self._loop_support_scews_dists:
+            gf.cylinder(support_x_size - self.cross_nut_distance_from_edge,
+                        support_y_size - y, self.cross_nut_diameter,
+                        self.z_size)
+            gf.free_movement()
+
+        gf.cutout_rect(0, 0, support_x_size, support_y_size, self.z_size)
+        gf.free_movement()
+
+        gf.close()
 
     def generate(self):
         self.screws()
@@ -120,3 +153,5 @@ class SupportStandard:
         self.__gf_holes_vertical.close()
         self.__gf_v_part.close()
         self.__gf_v_front.close()
+
+        self.support()
