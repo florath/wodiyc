@@ -6,6 +6,12 @@ WOoden DIY CNC
 *This project is in alpha phase and unfinished.  Nevertheless some
 parts might already be useful.*
 
+Status
+======
+
+.. image:: https://travis-ci.com/florath/wodiyc.svg?branch=master
+
+
 Introduction
 ============
 
@@ -44,8 +50,6 @@ A small list of requirements of this project:
    available within the most common Linux distributions.
 
 The initial toolchain is: python, blender and linuxcnc.
-
-.. image:: images/001_AdjustmentBlock-Small.png
 
 
 Notes
