@@ -46,6 +46,15 @@ Support:
 Reference:
   z_size: 12
 
+### Adjustment Block
+
+AdjustmentBlock:
+
+  size: 80
+  z_size: 19
+
+  center_diameter: 36
+
 ### Z Axis
 
 ZAxisPlatform: &ZAxixPlatform

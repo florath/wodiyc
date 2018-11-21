@@ -315,3 +315,48 @@ Z%.5f
         self._w("  G1 X%.5f Y%.5f\n" % (start_x, start_y))
         self._w("  #4 = [#4 + 1]\n")
         self._w("%s endwhile\n" % z_olabel)
+
+    # pylint: disable=too-many-arguments
+    def cutout_circle(self, x, y, diameter,
+                      depth, depth_start=0,
+                      bridges_width=2.5, bridges_height=2.5,
+                      bridges_start=45, bridges_repeat=90):
+        '''Create a circle coutout
+
+        Bridges are included.
+        '''
+        bridges_start_z = depth - bridges_height - depth_start
+        tool_runs, tool_depth_per_run \
+            = self.compute_tool_runs(bridges_start_z)
+
+        self._w("(--- Create circle cutout [%.5f, %.5f] "
+                "diameter [%.5f] depth [%.5f]"
+                " depth start [%.5f])\n"
+                % (x, y, diameter, depth, depth_start))
+
+        radius = diameter / 2.0
+        tool_radius = self.__tool_diameter / 2.0
+        real_radius = radius - tool_radius
+        real_x = x - radius + tool_radius
+        real_y = y
+
+        # *** The part of the circle that does not touch the bridges
+
+        # #5 - z idx
+        self._w("#5 = 1\n")
+
+        self._w("F%d\n" % self.__feed_rate_move)
+        self._w("G0 X%.5f Y%.5f\n" % (real_x, real_y))
+        self._w("F%d\n" % self.__feed_rate_work)
+        z_olabel = self.next_o()
+        self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
+        # #6 is Z
+        self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
+                % (depth_start, tool_depth_per_run))
+        self._w("  Z#6\n")
+
+        self._w("    G1 X%.5f Y%.5f\n" % (real_x, real_y))
+        self._w("    G3 X%.5f Y%.5f I%.5f\n" % (real_x, real_y, real_radius))
+        
+        self._w("  #5 = [#5 + 1]\n")
+        self._w("%s endwhile\n" % z_olabel)
