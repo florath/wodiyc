@@ -1,8 +1,13 @@
 '''
 GCode File - overall settings
 '''
+import math
 import os
 import pathlib
+
+
+def deg2rad(x):
+    return x * math.pi / 180
 
 
 # pylint: disable=too-many-instance-attributes
@@ -325,6 +330,7 @@ Z%.5f
 
         Bridges are included.
         '''
+        radius = diameter / 2
         bridges_start_z = depth - bridges_height - depth_start
         tool_runs, tool_depth_per_run \
             = self.compute_tool_runs(bridges_start_z)
@@ -334,10 +340,9 @@ Z%.5f
                 " depth start [%.5f])\n"
                 % (x, y, diameter, depth, depth_start))
 
-        radius = diameter / 2.0
         tool_radius = self.__tool_diameter / 2.0
         real_radius = radius - tool_radius
-        real_x = x - radius + tool_radius
+        real_x = x + real_radius
         real_y = y
 
         # *** The part of the circle that does not touch the bridges
@@ -356,7 +361,65 @@ Z%.5f
         self._w("  Z#6\n")
 
         self._w("    G1 X%.5f Y%.5f\n" % (real_x, real_y))
-        self._w("    G3 X%.5f Y%.5f I%.5f\n" % (real_x, real_y, real_radius))
+        self._w("    G3 X%.5f Y%.5f I%.5f\n" % (real_x, real_y, -real_radius))
         
+        self._w("  #5 = [#5 + 1]\n")
+        self._w("%s endwhile\n" % z_olabel)
+
+        # *** Bridges handling
+        tool_runs, tool_depth_per_run \
+            = self.compute_tool_runs(bridges_height)
+        # Compute how many degrees are the given bridges_width.
+        bridges_degree = (bridges_width + self.__tool_diameter) \
+                         / (math.pi * diameter) * 360
+        print("BDeg", bridges_degree)
+
+        # #5 - z idx
+        self._w("#5 = 1\n")
+
+        z_olabel = self.next_o()
+        self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
+        # #6 is Z
+        self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
+                % (bridges_start_z, tool_depth_per_run))
+        self._w("  Z#6\n")
+
+        # Current degree: this is needed for calculating the
+        # center of the circle.
+        current_degree = 0
+        # Write the loop using python - because some math is needed
+        for bdgr in range(bridges_start, 360, bridges_repeat):
+            bdgr_start = bdgr - bridges_degree / 2
+            bdgr_end = bdgr + bridges_degree / 2
+
+            ci = math.cos(deg2rad(current_degree)) * real_radius
+            cj = math.sin(deg2rad(current_degree)) * real_radius
+            rx = x + math.cos(deg2rad(bdgr_start)) * real_radius
+            ry = y + math.sin(deg2rad(bdgr_start)) * real_radius
+
+            self._w("    G3 X%.5f Y%.5f I%.5f J%.5f\n" %
+                    (rx, ry, -ci, -cj))
+            print("X", rx, "Y", ry)
+            print("I ", ci, "J", cj)
+
+            self._w("  Z-%.5f\n" % (bridges_start_z))
+
+            current_degree = bdgr_start
+            
+            ci = math.cos(deg2rad(current_degree)) * real_radius
+            cj = math.sin(deg2rad(current_degree)) * real_radius
+            rx = x + math.cos(deg2rad(bdgr_end)) * real_radius
+            ry = y + math.sin(deg2rad(bdgr_end)) * real_radius
+
+            self._w("    G3 X%.5f Y%.5f I%.5f J%.5f\n" %
+                    (rx, ry, -ci, -cj))
+            self._w("  Z#6\n")
+            current_degree = bdgr_end
+
+        ci = math.cos(deg2rad(current_degree)) * real_radius
+        cj = math.sin(deg2rad(current_degree)) * real_radius
+        self._w("    G3 X%.5f Y%.5f I%.5f J%.5f\n" %
+                (real_x, real_y, -ci, -cj))
+            
         self._w("  #5 = [#5 + 1]\n")
         self._w("%s endwhile\n" % z_olabel)

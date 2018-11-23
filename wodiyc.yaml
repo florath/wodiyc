@@ -55,6 +55,11 @@ AdjustmentBlock:
 
   center_diameter: 36
 
+  nut_width: 10
+  nut_height: 8
+  nut_indent: 2.5
+  nut_cutoff: 6
+
 ### Z Axis
 
 ZAxisPlatform: &ZAxixPlatform
