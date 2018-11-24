@@ -13,8 +13,8 @@ class AdjustmentBlock:
             host_cnc, "%s-Part" % self.__class__.__name__)
 
     def platform(self):
-        self.__gf.cutout_rect(
-            0, 0, self.size, self.size, self.z_size)
+        self.__gf.cutout_octagon(
+            0, 0, self.size, self.z_size)
         self.__gf.free_movement()
 
     def center(self):
@@ -40,8 +40,28 @@ class AdjustmentBlock:
                 self.size / 2 - self.nut_width / 2,
                 self.nut_height, self.nut_width, nut_complte_cutoff)
             self.__gf.free_movement()
+
+    def screw(self, x, y):
+        # Notch
+        self.__gf.cylinder(
+            x, y,
+            self.screwholes_notch_diameter, self.screwholes_notch_depth)
+        # Screw
+        self.__gf.cylinder(
+            x, y,
+            self.screwholes_diameter, self.z_size,
+            self.screwholes_notch_depth)
+        self.__gf.free_movement()
+
+    def screws(self):
+        for x in (self.screwholes_distance_from_corner,
+                  self.size - self.screwholes_distance_from_corner):
+            for y in (self.screwholes_distance_from_corner,
+                      self.size - self.screwholes_distance_from_corner):
+                self.screw(x, y)
             
     def generate(self):
+        self.screws()
         self.center()
         self.center_nuts()
         self.platform()

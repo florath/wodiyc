@@ -60,6 +60,11 @@ AdjustmentBlock:
   nut_indent: 2.5
   nut_cutoff: 6
 
+  screwholes_diameter:             *screwhole_diameter
+  screwholes_distance_from_corner: 20
+  screwholes_notch_diameter:       17.5
+  screwholes_notch_depth:          5
+
 ### Z Axis
 
 ZAxisPlatform: &ZAxixPlatform
