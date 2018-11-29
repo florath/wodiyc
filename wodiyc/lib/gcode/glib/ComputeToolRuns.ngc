@@ -1,0 +1,10 @@
+(- Compute Tool Runs -)
+( Compute how many runs of the tool need to go to given depth )
+o<gclib_compute_tool_runs> sub
+( Assign parameters to sensible names )
+#<depth> = #1
+#<tool_depth> = #2
+( Compute the params and assign them to global variables )
+#<_gclib_tool_runs> = [ FIX [#<depth> / #<tool_depth>] + 1 ]
+#<_glibc_tool_depth_per_run> = [ #<depth> / #<_gclib_tool_runs> ]
+o<gclib_compute_tool_runs> endsub

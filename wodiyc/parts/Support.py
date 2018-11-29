@@ -56,7 +56,6 @@ class Support:
                     gf.cylinder(
                         x, y, self.screwhole_diameter,
                         self.z_size, self.screwhole_notch_depth)
-                    self.__gf_part.free_movement()
                     gf.free_movement()
 
                 # Screw holes horizontal
@@ -78,11 +77,11 @@ class Support:
             self.__gf_v_front.free_movement()
 
     def cutouts(self):
-        # The big one
-        self.__gf_v_part.pocket(-2, self.y_size - self.z_size,
-                                self.x_size + 2, self.z_size,
-                                self.cutout_depth)
-        self.__gf_v_part.free_movement()
+#        # The big one
+#        self.__gf_v_part.pocket(-2, self.y_size - self.z_size,
+#                                self.x_size + 2, self.z_size,
+#                                self.cutout_depth)
+#        self.__gf_v_part.free_movement()
 
         for x in (self.screwhole_distance_from_edge,
                   self.x_size / 2,
@@ -90,14 +89,17 @@ class Support:
             self.__gf_v_part.cylinder(
                 x, self.y_size - self.z_size / 2,
                 self.screwhole_diameter,
-                self.z_size, self.cutout_depth)
+                self.z_size)
             self.__gf_v_part.free_movement()
 
         for x in (self.x_size / 2 - self.cutout_distance / 2,
                   self.x_size / 2 + self.cutout_distance / 2):
-            self.__gf_v_part.pocket(x - self.z_size/2, -2,
-                                    self.z_size, self.y_size+2-self.z_size,
-                                    self.cutout_depth)
+            self.__gf_v_part.pocket(
+                x - self.z_size/2, -2,
+                self.z_size,
+                # XXXX This is not ok (in reality its some mm to short)
+                self.y_size - self.z_size + self.inner_cutout_offset,
+                self.cutout_depth)
             self.__gf_v_part.free_movement()
 
             # Part

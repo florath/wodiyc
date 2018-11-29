@@ -1,0 +1,49 @@
+(--- Cut Line ---)
+( Uses: o10000 - o10003 )
+( Cuts a line from [start_x, start_y] to [end_x, end_y].
+  The depth starts at [depth_start] and goes to [depth].
+  Each cut is milles [milling_times] times.
+  Feed rates for work and movement must be given.
+  [tool_depth] is the depth the tool is able to cut
+  in one step. )
+o<gclib_cut_line> sub
+( Assign parameters to sensible names )
+#<start_x> = #1
+#<start_y> = #2
+#<end_x> = #3
+#<end_y> = #4
+#<depth> = #5
+#<depth_start> = #6
+#<milling_times> = #7
+#<feed_rate_move> = #8
+#<feed_rate_work> = #9
+#<tool_depth> = #10
+( Compute the tool_runs and tool_depth_per_run )
+o<gclib_compute_tool_runs> call [#<depth> - #<depth_start>] [#<tool_depth>]
+( Move to the beginning of the cut line )
+F#<feed_rate_work>
+G0 X#<start_x> Y#<start_y>
+F#<feed_rate_work>
+#<z_idx> = 1
+#<mt_cur> = 0
+
+o10000 while [#<z_idx> LE #<_gclib_tool_runs>]
+  #<z> = [#<depth_start> + #<z_idx> * [- #<_glibc_tool_depth_per_run>]]
+  Z#<z>
+  G1 X#<end_x> Y#<end_y>
+  #<mt_cur> = [#<mt_cur> + 1]
+  o10002 if [#<mt_cur> GE #<milling_times>]
+    #<mt_cur> = 0
+    #<z_idx> = [#<z_idx> + 1]
+    o10001 if [#<z_idx> GT #<_gclib_tool_runs>]
+      o10000 break
+    o10001 endif
+  o10002 endif
+  G1 X#<start_x> Y#<start_y>
+  #<mt_cur> = [#<mt_cur> + 1]
+  o10003 if [#<mt_cur> GE #<milling_times>]
+    #<z_idx> = [#<z_idx> + 1]
+  o10003 endif
+o10000 endwhile
+
+o<gclib_cut_line> endsub

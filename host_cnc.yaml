@@ -7,10 +7,13 @@ feed_rates:
   move: 1000
 free_movement: 7
 
+alu_feed_rates:
+  work: 200
+  move: 1000
+
 tools:
   1:
     diameter: 2.8
-    # diameter: 2.675
     # difference / overlapping path when cutting
     diff: 2.5
     # This gives good results - for the costs of long
@@ -31,3 +34,18 @@ tools:
     # This gives good results - for the costs of long
     # cutting times
     depth: 3
+
+  # For Alu
+  4:
+    diameter: 3.175
+    # difference / overlapping path when cutting
+    diff: 2
+    # This gives good results - for the costs of long
+    # cutting times
+    depth: 0.15
+
+  # Cleanup Tool Change
+  5:
+    diameter: 5
+    diff: 4
+    depth: 0

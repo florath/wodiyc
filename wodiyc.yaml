@@ -20,9 +20,9 @@ bearing_thick: &bearing_thick 5
 ### Support
 
 Support:
-  x_size: 270
-  y_size:  80
-  z_size:  16
+  x_size: &fix_x_size 270
+  y_size: &fix_y_size  80
+  z_size: &fix_z_size  16
 
   v_y_size: 60
 
@@ -34,15 +34,41 @@ Support:
 
   v_screwhole_distance_from_edge:
   
-  sleeve_diameter: 8
-  sleeve_depth: 16
+  sleeve_diameter: 10.2
+  sleeve_depth: 19
 
   cutout_depth: 6
   cutout_distance: 180
 
   cross_nut_diameter: *cross_nut_diameter
   cross_nut_distance_from_edge: 18
+
+  inner_cutout_offset: 3
+
+SupportBearing:
+  x_size: 200
+  y_size: 720
+
+  surface_clean_depth: 4
+  # Added to all sides
+  overlap: 4
+
+  tool_surface: 2
+  tool_holes: 1
+
+  screwhole_diameter:           *screwhole_diameter
+  screwhole_distance_from_edge: *distance_from_edge_small
+  screwhole_notch_diameter:     *screwhole_notch_diameter
+  # Extra depth - to have some tollerance towards the surface
+  screwhole_notch_depth:        6
+
+  fix_x_size: *fix_x_size
+  fix_y_size: *fix_y_size
+  fix_z_size: 14
   
+  tool_change_depth: 2
+  tool_change_diameter: 12
+
 Reference:
   z_size: 12
 
@@ -116,3 +142,30 @@ ZAxisBearingSupport:
 
   bearing_leg: *bearing_leg
   bearing_distance_from_edge: 5
+
+ZAxisLinearBearing:
+  feed_rates: "alu_feed_rates"
+  tool: 4
+  tool_cleanup: 5
+
+  # Because currently the tolerance of the CNC machine
+  # is somewhat high, there is the need to add something
+  # here to ensure that the hole is completely through.
+  z_size: 5.2
+
+  threadhole_diameter: 6.8
+  # 11 mm is half of a bearing
+  threadhole_distance_from_edge: 11
+  threadhole_distance_from_top:  11
+
+  # Latest after this depth a cleanup cycle is initiated
+  cleanup_depth: 2
+
+  # Number of times each operation is executed - to get
+  # a better result.
+  milling_times: 2
+
+  bearing_leg: *bearing_leg
+  # The offset over the edges when running cuts
+  cut_offset: 5
+  cut_depth: 4.75
