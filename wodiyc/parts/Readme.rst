@@ -11,6 +11,13 @@ should be checked.
    :align: center
 
 
+SupportBearing
+==============
+This part is used for manufacturing the linear bearing.
+
+.. image:: ../../images/SupportBearing.jpg
+
+
 Support
 =======
 This is used for manufacuring other parts. It is fixed on the
@@ -20,3 +27,25 @@ to mill the edges.
 .. image:: ../../images/Support-Back.jpg
 
 .. image:: ../../images/Support-Front.jpg
+
+
+ZAxisBearingSupport
+===================
+This part fixes the Z axis to the linear bearing.
+
+.. image:: ../../images/ZAxisBearingSupport.jpg
+
+
+ZAxisPlatform
+=============
+The tool is mounted here.
+
+The original plan uses a 19mm MDF - which bends under a medium force.
+Therefore the current approach uses two 16mm MDF plates glued together.
+
+.. image:: ../../images/ZAxisPlatform-Front.jpg
+
+.. image:: ../../images/ZAxisPlatform-Back.jpg
+
+.. image:: ../../images/ZAxisPlatform.jpg
+
