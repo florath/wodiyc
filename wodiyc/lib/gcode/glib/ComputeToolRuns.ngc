@@ -6,5 +6,5 @@ o<gclib_compute_tool_runs> sub
 #<tool_depth> = #2
 ( Compute the params and assign them to global variables )
 #<_gclib_tool_runs> = [ FIX [#<depth> / #<tool_depth>] + 1 ]
-#<_glibc_tool_depth_per_run> = [ #<depth> / #<_gclib_tool_runs> ]
+#<_gclib_tool_depth_per_run> = [ #<depth> / #<_gclib_tool_runs> ]
 o<gclib_compute_tool_runs> endsub
