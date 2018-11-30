@@ -57,6 +57,10 @@ Parts
 
 This is the list of parts that already is available.
 
+A complete list including images can be found in a separate Readme_.
+
+.. _Readme: wodiyc/parts/Readme.rst
+
 #. Adjustment Block: this is used for fixing the tubes and bearings.
 
 #. Anti Backlash Nut
