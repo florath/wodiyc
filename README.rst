@@ -44,7 +44,7 @@ to create (the target CNC machine). Adapt it as you want.
 
    python3 wodiyc/wodiyc_generate.py --wodiyc wodiyc.yaml --host-cnc host_cnc.yaml
 
-After the run the subdirectory contains the GCode files.
+After the run the subdirectory NGC contains the GCode files.
 
 
 Requirements
