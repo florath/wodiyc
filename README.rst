@@ -5,13 +5,8 @@ WOoden DIY CNC
 
 python application to generate G-Code for a CNC machine.
 
-*This project is in alpha phase and unfinished.  Nevertheless some
-parts might already be useful.*
-
-Status
-======
-
-.. image:: https://travis-ci.com/florath/wodiyc.svg?branch=master
+*This project is unfinished.  Nevertheless some
+parts are already useful.*
 
 
 Introduction
@@ -33,8 +28,6 @@ These plans had three major disadvantages:
 
 #. The plans were not intended to be used in a CNC router itself.
 
-Therefore this project was started.
-
 
 Requirements
 ============
@@ -52,7 +45,35 @@ A small list of requirements of this project:
 #. The complete (software-) tool chain should be open source and
    available within the most common Linux distributions.
 
+#. All parts are created with bridges.
+
 The current toolchain is: python and linuxcnc.
+
+.. image:: https://photos.google.com/share/AF1QipMHs2LHl_tDuzyQsBGVfpnd_JHKZig56FVNtqP6LDVqorhbDNc2UMOWcrqWUwbzZQ/photo/AF1QipN7jYF4yb2foBfOrMQkYqhs1JYcklWJYvO06KtP?key=QW5PTFVLdlZOWnh2U1pUY3h1bzFrOU9ObmluTDNB
+
+
+Parts
+=====
+
+This is the list of parts that already is available.
+
+#. Adjustment Block: this is used for fixing the tubes and bearings.
+
+#. Anti Backlash Nut
+
+#. Reference: a small part to get the measurements correct
+
+#. Support Bearing: used for manufacturing the linear bearings
+
+#. Support: used for manufacuring parts with holes in the edge
+
+#. ZAxis Bearing Support
+
+#. ZAxis Linear Bearing
+
+#. ZAxis Platform Back
+
+#. ZAxis Platform Front
 
 
 Notes
@@ -67,6 +88,13 @@ generaded G-Code might contain errors and bugs.  Use them with care.
 The license is chosen in a way that commercial use of the plans and of
 course of any CNC milling machine is allowed.  But if you change the
 plans you have also to publish the changes.
+
+Status
+======
+
+This is not that important as this runs only pep8 and pylint.
+
+.. image:: https://travis-ci.com/florath/wodiyc.svg?branch=master
 
 
 Happy Milling.

@@ -166,6 +166,41 @@ ZAxisLinearBearing:
   milling_times: 2
 
   bearing_leg: *bearing_leg
+
   # The offset over the edges when running cuts
   cut_offset: 5
   cut_depth: 4.75
+
+### Anti Backlash Nut
+AntiBacklashNut:
+  feed_rates: "alu_feed_rates"
+  tool: 4
+  tool_cleanup: 5
+
+  # Because currently the tolerance of the CNC machine
+  # is somewhat high, there is the need to add something
+  # here to ensure that the hole is completely through.
+  z_size: 10.2
+
+  x_size: 50
+  y_size: 40
+
+  threadhole_diameter: 10.2
+  # 11 mm is half of a bearing
+  threadhole_distance_from_edge: 25
+  threadhole_distance_from_top:  20
+
+  # Latest after this depth a cleanup cycle is initiated
+  cleanup_depth: 2
+
+  # Number of times each operation is executed - to get
+  # a better result.
+  milling_times: 2
+
+  # The offset over the edges when running cuts
+  cut_offset: 5
+  cut_depth: 9.75
+
+  # The measurements for the (screw) holes
+  holes_distance_from_edge: 10
+  holes_diameter: 6

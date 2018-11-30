@@ -1,27 +1,22 @@
 '''
-Z Axis Linear Bearing
+Anti Backlash Nut
 '''
 
 from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator, Direction
 
 
-class ZAxisLinearBearing:
+class AntiBacklashNut:
 
     def __init__(self, host_cnc, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
         self.__gf = GCodeGenerator(
-            host_cnc, "%s-side" % self.__class__.__name__,
+            host_cnc, "%s-Mount" % self.__class__.__name__,
             feed_rates_name=self.feed_rates,
             tool=self.tool)
-
-        self.__gf_cut = GCodeGenerator(
-            host_cnc, "%s-cut" % self.__class__.__name__,
-            feed_rates_name=self.feed_rates,
-            tool=self.tool)
-
 
     def generate(self):
+        # This needs refactoring: extract to dedicated GCode.
         cleanup_runs = int(self.z_size / self.cleanup_depth)
         cleanup_depth_per_run = self.z_size / (cleanup_runs + 1)
 
@@ -38,17 +33,28 @@ class ZAxisLinearBearing:
             self.__gf.set_tool(self.tool_cleanup)
             self.__gf.set_tool(self.tool)
 
-            #        self.__gf.cutout_rect(
-            #            0, 0, 15, 15, self.z_size)
-            #        self.__gf.free_movement()
+        for x in (self.holes_distance_from_edge,
+                  self.x_size - self.holes_distance_from_edge):
+            for y in (self.holes_distance_from_edge,
+                      self.y_size - self.holes_distance_from_edge):
+                depth_end = 0
+                for cl in range(cleanup_runs + 1):
+                    self.__gf.cylinder(
+                        x, y,
+                        self.holes_diameter,
+                        (cl + 1) * cleanup_depth_per_run,
+                        depth_end, times=self.milling_times)
+                    self.__gf.free_movement()
+                    depth_end = (cl + 1) * cleanup_depth_per_run
+                    self.__gf.set_tool(self.tool_cleanup)
+                    self.__gf.set_tool(self.tool)
 
-        self.__gf_cut.cut_line(
+        self.__gf.cut_line(
             (Direction.top, ),
-            0 - self.cut_offset , 0,
-            self.bearing_leg + self.cut_offset, 0,
+            0 - self.cut_offset , self.y_size,
+            self.x_size + self.cut_offset, self.y_size,
             self.cut_depth, 0, milling_times=self.milling_times,
             comment="Bearing leg cut off")
-        self.__gf_cut.free_movement()
+        self.__gf.free_movement()
 
         self.__gf.close()
-        self.__gf_cut.close()
