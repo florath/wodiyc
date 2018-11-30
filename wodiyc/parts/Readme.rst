@@ -4,8 +4,8 @@ Parts
 AntiBacklashNut
 ===============
 The anti backlash nut is self-made as I did not found any
-for M12.  It uses two the same blocks from aluminuim.  The picture
-shows the raw - without the thread.
+for M12.  It is created using two blocks from aluminuim.  The picture
+shows a raw one - without the thread.
 
 .. image:: ../../images/AntiBacklashNut.jpg
 

@@ -29,6 +29,22 @@ These plans had three major disadvantages:
 #. The plans were not intended to be used in a CNC router itself.
 
 
+Usage
+=====
+
+Checkout this project.
+
+The file host_cnc.yaml contains the properties of the CNC machine
+you are creating the GCode for.  Please adapt it to your needs.
+
+The file wodiyc.yaml contains all the measurements of the CNC machine
+to create (the target CNC machine). Adapt it as you want.
+
+.. code:: bash
+
+   python3 wodiyc/wodiyc_generate.py --wodiyc wodiyc.yaml --host-cnc host_cnc.yaml
+
+
 Requirements
 ============
 
