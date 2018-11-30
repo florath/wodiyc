@@ -49,7 +49,7 @@ A small list of requirements of this project:
 
 The current toolchain is: python and linuxcnc.
 
-.. image:: https://photos.google.com/share/AF1QipMHs2LHl_tDuzyQsBGVfpnd_JHKZig56FVNtqP6LDVqorhbDNc2UMOWcrqWUwbzZQ/photo/AF1QipN7jYF4yb2foBfOrMQkYqhs1JYcklWJYvO06KtP?key=QW5PTFVLdlZOWnh2U1pUY3h1bzFrOU9ObmluTDNB
+.. image:: images/Bridges.jpg
 
 
 Parts
