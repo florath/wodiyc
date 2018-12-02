@@ -350,7 +350,8 @@ Z%.5f
             end_y += tool_radius
 
         if Direction.bottom in placement:
-            assert False
+            start_y -= tool_radius
+            end_y -= tool_radius
             
         if Direction.left in placement:
             assert False

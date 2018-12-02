@@ -10,6 +10,17 @@ shows a raw one - without the thread.
 .. image:: ../../images/AntiBacklashNut.jpg
 
 
+Linear Bearing
+==============
+The linear bearings are the central concept of movement. They
+are mounted on one side and role over the tubes on the other.
+
+There are two sizes: the short for the Z axis and a longer one
+for the X and Y axis.
+
+.. image:: ../../images/LinearBearing.jpg
+
+
 Reference
 =========
 This part is used only as measurement reference. It should

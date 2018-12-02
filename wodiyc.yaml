@@ -153,6 +153,9 @@ ZAxisLinearBearing:
   # here to ensure that the hole is completely through.
   z_size: 5.2
 
+  y_size_short: 150
+  y_size_long: 200
+
   threadhole_diameter: 6.8
   # 11 mm is half of a bearing
   threadhole_distance_from_edge: 11
@@ -168,8 +171,11 @@ ZAxisLinearBearing:
   bearing_leg: *bearing_leg
 
   # The offset over the edges when running cuts
-  cut_offset: 5
+  cut_offset: 7
   cut_depth: 4.75
+
+  marker_x: 3
+  marker_z: 3
 
 ### Anti Backlash Nut
 AntiBacklashNut:
