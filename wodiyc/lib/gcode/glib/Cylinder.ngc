@@ -1,0 +1,57 @@
+(--- Cylinder ---)
+( Uses: o10100 - o10102 )
+( Cuts a cylinder at pos [pos_x, pos_y] with [diameter]. )
+o<gclib_cylinder> sub
+( Assign parameters to sensible names )
+#<pos_x> = #1
+#<pos_y> = #2
+#<diameter> = #3
+#<depth> = #4
+#<depth_start> = #5
+#<milling_times> = #6
+#<feed_rate_move> = #7
+#<feed_rate_work> = #8
+#<feed_rate_dip> = #9
+#<tool_depth> = #10
+#<tool_diameter> = #11
+#<tool_diff> = #12
+( Compute the tool_runs and tool_depth_per_run )
+o<gclib_compute_tool_runs> call [#<depth> - #<depth_start>] [#<tool_depth>]
+
+( Move to the beginning of the cylinder: left center )
+#<radius> = [#<diameter> / 2.0]
+#<tool_radius> = [#<tool_diameter> / 2.0]
+#<real_x> = [#<pos_x> - #<radius> + #<tool_radius>]
+
+F#<feed_rate_move>
+G0 X#<real_x> Y#<pos_y>
+( Start with the work )
+#<z_idx> = 1
+
+o10100 while [#<z_idx> LE #<_gclib_tool_runs>]
+  #<z> = [-#<depth_start> + #<z_idx> * [- #<_gclib_tool_depth_per_run>]]
+  F#<feed_rate_dip>
+  G1 Z#<z>
+  F#<feed_rate_work>
+
+  ( Milling times loop )
+  #<mt_cur> = 0
+  o10101 while [#<mt_cur> LT #<milling_times>]
+    #<radius_cur> = #<radius>
+
+    o10102 while [#<radius_cur> GT #<tool_diff>]
+      #<real_x> = [#<pos_x> + #<tool_radius> - #<radius_cur>]
+      #<real_radius> = [#<radius_cur> - #<tool_radius>]
+      G1 X#<real_x> Y#<pos_y>
+      G3 X#<real_x> Y#<pos_y> I#<real_radius>
+      #<radius_cur> = [#<radius_cur> - #<tool_diff>]
+    o10102 endwhile
+
+    ( At last in this layer go to the center )
+    G1 X#<pos_x> Y#<pos_y>
+    #<mt_cur> = [#<mt_cur> + 1]
+  o10101 endwhile
+  #<z_idx> = [#<z_idx> + 1]
+o10100 endwhile
+
+o<gclib_cylinder> endsub

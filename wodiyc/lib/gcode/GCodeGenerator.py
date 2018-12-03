@@ -31,6 +31,7 @@ class GCodeGenerator:
 
         self.__feed_rate_work = config[feed_rates_name]['work']
         self.__feed_rate_move = config[feed_rates_name]['move']
+        self.__feed_rate_dip = config[feed_rates_name]['dip']
         self.__free_movement = config['free_movement']
 
         self.__tool_diameter = config['tools'][tool]['diameter']
@@ -79,6 +80,9 @@ Z%.5f
         '''Move the tool to standard free movement hight'''
         self._w("G0 Z%.5f\n" % (self.__free_movement))
 
+    def comment(self, c):
+        self._w("( %s )\n" % c)
+
     def compute_tool_runs(self, depth, tool_depth=None):
         '''Compute how many runs of the tool need to go to given depth'''
         if tool_depth is None:
@@ -94,58 +98,15 @@ Z%.5f
 
         pos_x and pos_y are the center with the diameter and depth.
         '''
-        tool_runs, tool_depth_per_run \
-            = self.compute_tool_runs(depth - depth_start)
 
-        self._w("(--- Create cylinder [%.5f, %.5f] diam [%.5f] depth [%.5f]"
-                " depth start [%.5f])\n"
-                % (pos_x, pos_y, diameter, depth, depth_start))
+        self._w("o<gclib_cylinder> call [%.5f] [%.5f] [%.5f] [%.5f] "
+                "[%.5f] [%d] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f]\n"
+                % (pos_x, pos_y, diameter, depth, depth_start, times,
+                   self.__feed_rate_move, self.__feed_rate_work,
+                   self.__feed_rate_dip, self.__tool_depth,
+                   self.__tool_diameter, self.__tool_diff))
 
-        radius = diameter / 2.0
-        tool_radius = self.__tool_diameter / 2.0
-        real_x = pos_x - radius + tool_radius
-
-        self._w("F%d\n" % self.__feed_rate_move)
-        self._w("G0 X%.5f Y%.5f\n" % (real_x, pos_y))
-        # #4 is Z idx
-        self._w("#4 = 1\n")
-        z_olabel = self.next_o()
-        self._w("%s while [#4 LE %d]\n" % (z_olabel, tool_runs))
-        # #5 is Z
-        self._w("  #5 = [-%.5f + #4 * -%.5f]\n"
-                % (depth_start, tool_depth_per_run))
-        self._w("  F%d\n" % self.__feed_rate_work)
-        self._w("  G1 Z#5\n")
-
-        # #6: Times loop
-        self._w("  #6 = 0\n")
-        times_olabel = self.next_o()
-        self._w("  %s while [#6 LT %d]\n" % (times_olabel, times))
-
-        # #1 is radius
-        self._w("    #1 = %.5f\n" % radius)
-
-        r_olabel = self.next_o()
-        self._w("    %s while [#1 GT %.5f]\n"
-                % (r_olabel, self.__tool_diff))
-        # #2 is real_x
-        self._w("      #2 = [%.5f - #1]\n" % (pos_x + tool_radius))
-        # #3 is real_radius
-        self._w("      #3 = [#1 - %.5f]\n" % tool_radius)
-
-        self._w("      G1 X#2 Y%.5f\n" % (pos_y))
-        self._w("      G3 X#2 Y%.5f I#3\n" % (pos_y))
-
-        self._w("      #1 = [#1 - %.5f]\n" % (self.__tool_diff))
-        self._w("    %s endwhile\n" % (r_olabel))
-
-        # Times Endloop
-        self._w("    G1 X%.5f Y%.5f\n" % (pos_x, pos_y))
-        self._w("    #6 = [#6 + 1]\n")
-        self._w("  %s endwhile\n" % times_olabel)
-        
-        self._w("  #4 = [#4 + 1]\n")
-        self._w("%s endwhile\n" % z_olabel)
+        return
 
     # pylint: disable=too-many-arguments
     def pocket(self, low_x, low_y, size_x, size_y, depth, depth_start=0):

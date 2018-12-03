@@ -20,17 +20,25 @@ o<gclib_cut_line> sub
 #<tool_depth> = #10
 ( Compute the tool_runs and tool_depth_per_run )
 o<gclib_compute_tool_runs> call [#<depth> - #<depth_start>] [#<tool_depth>]
+( The loop handles [from_x, from_y] -> [to_x, to_y] )
+#<from_x> = #<start_x>
+#<from_y> = #<start_y>
+#<to_x> = #<end_x>
+#<to_y> = #<end_y>
 ( Move to the beginning of the cut line )
-F#<feed_rate_work>
-G0 X#<start_x> Y#<start_y>
+F#<feed_rate_move>
+G0 X#<from_x> Y#<from_y>
+( Start with the work )
 F#<feed_rate_work>
 #<z_idx> = 1
 #<mt_cur> = 0
 
 o10000 while [#<z_idx> LE #<_gclib_tool_runs>]
-  #<z> = [#<depth_start> + #<z_idx> * [- #<_gclib_tool_depth_per_run>]]
-  Z#<z>
-  G1 X#<end_x> Y#<end_y>
+
+  ( [from_x, from_y] -> [to_x, to_y] )
+  #<z> = [-#<depth_start> + #<z_idx> * [- #<_gclib_tool_depth_per_run>]]
+  G1 Z#<z>
+  G1 X#<to_x> Y#<to_y>
   #<mt_cur> = [#<mt_cur> + 1]
   o10002 if [#<mt_cur> GE #<milling_times>]
     #<mt_cur> = 0
@@ -39,11 +47,15 @@ o10000 while [#<z_idx> LE #<_gclib_tool_runs>]
       o10000 break
     o10001 endif
   o10002 endif
-  G1 X#<start_x> Y#<start_y>
-  #<mt_cur> = [#<mt_cur> + 1]
-  o10003 if [#<mt_cur> GE #<milling_times>]
-    #<z_idx> = [#<z_idx> + 1]
-  o10003 endif
+
+  ( Swap <to_> and <from_> )
+  #<tmp_x> = #<to_x>
+  #<tmp_y> = #<to_y>
+  #<to_x> = #<from_x>
+  #<to_y> = #<from_y>
+  #<from_x> = #<tmp_x>
+  #<from_y> = #<tmp_y>
+
 o10000 endwhile
 
 o<gclib_cut_line> endsub

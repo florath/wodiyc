@@ -54,6 +54,7 @@ class AdjustmentBlock:
         self.__gf.free_movement()
 
     def screws(self):
+        self.__gf.comment("Four screws with notches")
         for x in (self.screwholes_distance_from_corner,
                   self.size - self.screwholes_distance_from_corner):
             for y in (self.screwholes_distance_from_corner,

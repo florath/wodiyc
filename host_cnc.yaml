@@ -5,11 +5,13 @@
 feed_rates:
   work: 500
   move: 1000
+  dip: 100
 free_movement: 7
 
 alu_feed_rates:
   work: 200
   move: 1000
+  dip: 50
 
 tools:
   1:
