@@ -9,6 +9,12 @@ shows a raw one - without the thread.
 
 .. image:: ../../images/AntiBacklashNut.jpg
 
+The complet setup uses two of the nuts. The following image shows a
+test-setup. In the machine later on one of the nuts is mounted
+to the axis.
+
+.. image:: ../../images/AntiBacklashNut-Complete.jpg
+
 
 Linear Bearing
 ==============
