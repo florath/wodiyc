@@ -1,0 +1,59 @@
+(--- Pocket ---)
+( OLabel Uses: o10200 - o10201 )
+( Cuts a pocket )
+o<gclib_pocket> sub
+( Assign parameters to sensible names )
+( ToDo: milling_times is currently not implemented )
+#<low_x> = #1
+#<low_y> = #2
+#<size_x> = #3
+#<size_y> = #4
+#<depth> = #5
+#<depth_start> = #6
+#<milling_times> = #7
+#<feed_rate_move> = #8
+#<feed_rate_work> = #9
+#<feed_rate_dip> = #10
+#<tool_depth> = #11
+#<tool_diameter> = #12
+#<tool_diff> = #13
+( Compute the tool_runs and tool_depth_per_run )
+o<gclib_compute_tool_runs> call [#<depth> - #<depth_start>] [#<tool_depth>]
+
+#<tool_radius> = [#<tool_diameter> / 2.0]
+
+( Move to the beginning of the cut )
+F#<feed_rate_move>
+G0 X[#<low_x> + #<tool_radius>] Y[#<low_y> + #<tool_radius>]
+F#<feed_rate_work>
+#<z_idx> = 1
+#<mt_cur> = 0
+
+o10200 while [#<z_idx> LE #<_gclib_tool_runs>]
+  #<x> = [#<low_x> + #<tool_radius>]
+  #<y> = [#<low_y> + #<tool_radius>]
+  #<dx> = [#<size_x> - #<tool_diameter>]
+  #<dy> = [#<size_y> - #<tool_diameter>]
+  #<z> = [-#<depth_start> + #<z_idx> * [- #<_gclib_tool_depth_per_run>]]
+
+  F#<feed_rate_dip>
+  G1 Z#<z>
+  F#<feed_rate_work>
+
+  o10201 while [#<dx> GE 0.0 AND #<dy> GE 0.0]
+    G1 X#<x> Y#<y>
+    X[#<x> + #<dx>]
+    Y[#<y> + #<dy>]
+    X#<x>
+    Y#<y>
+
+    ( Re-compute )
+    #<x> = [#<x> + #<tool_diff>]
+    #<y> = [#<y> + #<tool_diff>]
+    #<dx> = [#<dx> - 2.0 * #<tool_diff>]
+    #<dy> = [#<dy> - 2.0 * #<tool_diff>]
+  o10201 endwhile
+  #<z_idx> = [#<z_idx> + 1]
+o10200 endwhile
+
+o<gclib_pocket> endsub

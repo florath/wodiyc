@@ -1,5 +1,5 @@
 (--- Cylinder ---)
-( Uses: o10100 - o10102 )
+( OLabel Uses: o10100 - o10102 )
 ( Cuts a cylinder at pos [pos_x, pos_y] with [diameter]. )
 o<gclib_cylinder> sub
 ( Assign parameters to sensible names )

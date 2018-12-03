@@ -76,7 +76,7 @@ Reference:
 
 AdjustmentBlock:
 
-  size: 80
+  size: 70
   z_size: 19
 
   center_diameter: 36
@@ -87,7 +87,7 @@ AdjustmentBlock:
   nut_cutoff: 6
 
   screwholes_diameter:             *screwhole_diameter
-  screwholes_distance_from_corner: 20
+  screwholes_distance_from_corner: 17
   screwholes_notch_diameter:       17.5
   screwholes_notch_depth:          5
 

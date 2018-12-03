@@ -98,69 +98,26 @@ Z%.5f
 
         pos_x and pos_y are the center with the diameter and depth.
         '''
-
         self._w("o<gclib_cylinder> call [%.5f] [%.5f] [%.5f] [%.5f] "
                 "[%.5f] [%d] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f]\n"
                 % (pos_x, pos_y, diameter, depth, depth_start, times,
                    self.__feed_rate_move, self.__feed_rate_work,
                    self.__feed_rate_dip, self.__tool_depth,
                    self.__tool_diameter, self.__tool_diff))
-
         return
 
     # pylint: disable=too-many-arguments
-    def pocket(self, low_x, low_y, size_x, size_y, depth, depth_start=0):
+    def pocket(self, low_x, low_y, size_x, size_y, depth, depth_start=0,
+               times=1):
         '''Create a pocket'''
-        tool_runs, tool_depth_per_run \
-            = self.compute_tool_runs(depth - depth_start)
-
-        self._w("(--- Create pocket [%.5f, %.5f] size [%.5f, %.5f] "
-                "depth [%.5f] depth start [%.5f])\n"
-                % (low_x, low_y, size_x, size_y, depth, depth_start))
-
-        tool_radius = self.__tool_diameter / 2.0
-
-        # Goto initial position
-        self._w("G0 X%.5f Y%.5f\n"
-                % (low_x + tool_radius, low_y + tool_radius))
-
-        # #5 - z idx
-        self._w("#5 = 1\n")
-
-        self._w("F%d\n" % self.__feed_rate_work)
-        z_olabel = self.next_o()
-        self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
-        # #1 - x (with tool diff included)
-        self._w("  #1 = %.5f\n" % (low_x + tool_radius))
-        # #2 - y (with tool diff included)
-        self._w("  #2 = %.5f\n" % (low_y + tool_radius))
-        # #3 - dx (with tool diff included)
-        self._w("  #3 = %.5f\n" % (size_x - self.__tool_diameter))
-        # #4 - dy (with tool diff included)
-        self._w("  #4 = %.5f\n" % (size_y - self.__tool_diameter))
-        # #6 is Z
-        self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
-                % (depth_start, tool_depth_per_run))
-        self._w("  Z#6\n")
-
-        r_olabel = self.next_o()
-        self._w("  %s while [#3 GE 0.0 AND #4 GE 0.0]\n" % (r_olabel))
-        # One square
-        self._w("    G1 X#1 Y#2\n")
-        self._w("    X[#1 + #3]\n")
-        self._w("    Y[#2 + #4]\n")
-        self._w("    X#1\n")
-        self._w("    Y#2\n")
-
-        # Re-compute
-        self._w("    #1 = [#1 + %.5f]\n" % self.__tool_diff)
-        self._w("    #2 = [#2 + %.5f]\n" % self.__tool_diff)
-        self._w("    #3 = [#3 - %.5f]\n" % (2 * self.__tool_diff))
-        self._w("    #4 = [#4 - %.5f]\n" % (2 * self.__tool_diff))
-
-        self._w("  %s endwhile\n" % (r_olabel))
-        self._w("  #5 = [#5 + 1]\n")
-        self._w("%s endwhile\n" % z_olabel)
+        self._w("o<gclib_pocket> call [%.5f] [%.5f] [%.5f] [%.5f] "
+                "[%.5f] [%.5f] [%d] [%.5f] [%.5f] [%.5f] [%.5f] "
+                "[%.5f] [%.5f]\n"
+                % (low_x, low_y, size_x, size_y, depth, depth_start, times,
+                   self.__feed_rate_move, self.__feed_rate_work,
+                   self.__feed_rate_dip, self.__tool_depth,
+                   self.__tool_diameter, self.__tool_diff))
+        return
 
     # pylint: disable=too-many-arguments
     def cutout_rect(self, low_x, low_y, size_x, size_y,
@@ -427,130 +384,19 @@ Z%.5f
     def cutout_octagon(self, low_x, low_y, size,
                        depth, depth_start=0,
                        bridges_width=2.5, bridges_height=2.5,
-                       bridges_distance=70):
+                       bridges_distance=70, milling_times=1):
         '''Create a octagon coutout
 
         Bridges are included.
         '''
-        a = size / (1 + math.sqrt(2))
-        a_half = a  / 2
-        a_pos = size / 2 - a_half
 
-        bridges_start_z = depth - bridges_height - depth_start
-        tool_runs, tool_depth_per_run \
-            = self.compute_tool_runs(bridges_start_z)
+        self._w("o<gclib_cutout_octagon> call [%.5f] [%.5f] [%.5f] [%.5f] "
+                "[%.5f] [%.5f] [%.5f] [%d] [%.5f] [%.5f] [%.5f] [%.5f] "
+                "[%.5f]\n"
+                % (low_x, low_y, size, bridges_width, bridges_height,
+                   depth, depth_start, milling_times,
+                   self.__feed_rate_move, self.__feed_rate_work,
+                   self.__feed_rate_dip, self.__tool_depth,
+                   self.__tool_diameter))
 
-        self._w("(--- Create octagon cutout [%.5f, %.5f] "
-                "size [%.5f] depth [%.5f]"
-                " depth start [%.5f])\n"
-                % (low_x, low_y, size, depth, depth_start))
-
-        tool_radius = self.__tool_diameter / 2.0
-
-        self._w("G0 X%.5f Y%.5f\n"
-                % (low_x - tool_radius, low_y + a_pos))
-
-        # *** The part of the rect that does not touch the bridges
-
-        # #5 - z idx
-        self._w("#5 = 1\n")
-
-        self._w("F%d\n" % self.__feed_rate_work)
-        z_olabel = self.next_o()
-        self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
-        # #6 is Z
-        self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
-                % (depth_start, tool_depth_per_run))
-        self._w("  Z#6\n")
-
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x - tool_radius, low_y + a_pos + a))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos, low_y + size + tool_radius))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a, low_y + size + tool_radius))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + size + tool_radius, low_y + a_pos + a))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + size + tool_radius, low_y + a_pos))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a, low_y - tool_radius))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos, low_y - tool_radius))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x - tool_radius, low_y + a_pos))
-                   
-        self._w("  #5 = [#5 + 1]\n")
-        self._w("%s endwhile\n" % z_olabel)
-
-        # *** Bridges handling
-        tool_runs, tool_depth_per_run \
-            = self.compute_tool_runs(bridges_height)
-
-        a_b_half = (a - bridges_width) / 2 - tool_radius
-        a_bp = (a - bridges_width) / 2 + bridges_width + tool_radius
-
-        # #5 - z idx
-        self._w("#5 = 1\n")
-
-        z_olabel = self.next_o()
-        self._w("%s while [#5 LE %d]\n" % (z_olabel, tool_runs))
-        # #6 is Z
-        self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
-                % (bridges_start_z, tool_depth_per_run))
-        self._w("  Z#6\n")
-
-        # Left side: use bridge
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x - tool_radius, low_y + a_pos + a_b_half))
-        self._w("  Z-%.5f\n" % (bridges_start_z))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x - tool_radius, low_y + a_pos + a_bp))
-        self._w("  Z#6\n")
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x - tool_radius, low_y + a_pos + a))
-        
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos, low_y + size + tool_radius))
-
-        # Top side: use bridge
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a_b_half, low_y + size + tool_radius))
-        self._w("  Z-%.5f\n" % (bridges_start_z))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a_bp, low_y + size + tool_radius))
-        self._w("  Z#6\n")
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a, low_y + size + tool_radius))
-        
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + size + tool_radius, low_y + a_pos + a))
-
-        # Right side: use bridge
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + size + tool_radius, low_y + a_pos + a_bp))
-        self._w("  Z-%.5f\n" % (bridges_start_z))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + size + tool_radius, low_y + a_pos + a_b_half))
-        self._w("  Z#6\n")
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + size + tool_radius, low_y + a_pos))
-
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a, low_y - tool_radius))
-
-        # Bottom side: use bridge
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a_bp, low_y - tool_radius))
-        self._w("  Z-%.5f\n" % (bridges_start_z))
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos + a_b_half, low_y - tool_radius))
-        self._w("  Z#6\n")
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x + a_pos, low_y - tool_radius))
-
-        self._w("  G1 X%.5f Y%.5f\n"
-                % (low_x - tool_radius, low_y + a_pos))
-
-        self._w("  #5 = [#5 + 1]\n")
-        self._w("%s endwhile\n" % z_olabel)
+        return

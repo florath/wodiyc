@@ -1,13 +1,13 @@
 (--- Cut Line ---)
-( Uses: o10000 - o10003 )
+( OLabel Uses: o10000 - o10003 )
 ( Cuts a line from [start_x, start_y] to [end_x, end_y]. )
 ( The depth starts at [depth_start] and goes to [depth]. )
 ( Each cut is milles [milling_times] times. )
 ( Feed rates for work and movement must be given. )
 ( [tool_depth] is the depth the tool is able to cut )
-(  in one step. )
+( in one step. )
 o<gclib_cut_line> sub
-( Assign parameters to sensible names )
+( Assign parameters to names )
 #<start_x> = #1
 #<start_y> = #2
 #<end_x> = #3

@@ -1,0 +1,136 @@
+(--- Cutout Octagon ---)
+( OLabel Uses: o10300 - o10301 )
+( Cuts out an octagon. )
+( The cut is done on the outside. )
+( [size] is the overall size. The side length is computed )
+( inside the function. )
+o<gclib_cutout_octagon> sub
+( Assign parameters to names )
+#<low_x> = #1
+#<low_y> = #2
+#<size> = #3
+#<bridges_width> = #4
+#<bridges_height> = #5
+#<depth> = #6
+#<depth_start> = #7
+#<milling_times> = #8
+#<feed_rate_move> = #9
+#<feed_rate_work> = #10
+#<feed_rate_dip> = #11
+#<tool_depth> = #12
+#<tool_diameter> = #13
+
+( Compute the tool_runs and tool_depth_per_run )
+o<gclib_compute_tool_runs> call [#<depth> - #<bridges_height> - #<depth_start>] [#<tool_depth>]
+
+( Compute other initial values )
+#<a_side> = [#<size> / [1.0 + SQRT[2.0]]]
+#<a_half> = [#<a_side>  / 2.0]
+#<a_pos> = [#<size> / 2.0 - #<a_half>]
+#<bridges_start_z> = [#<depth> - #<bridges_height> - #<depth_start>]
+#<tool_radius> = [#<tool_diameter> / 2.0]
+
+( Move to the beginning of the cut )
+F#<feed_rate_move>
+G0 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos>]
+
+( The part of the octagon that does not touch the bridges )
+#<z_idx> = 1
+#<mt_cur> = 0
+o10300 while [#<z_idx> LE #<_gclib_tool_runs>]
+  #<z> = [-#<depth_start> + #<z_idx> * [- #<_gclib_tool_depth_per_run>]]
+  F#<feed_rate_dip>
+  G1 Z#<z>
+
+  F#<feed_rate_work>
+  G1 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_side>]
+  G1 X[#<low_x> + #<a_pos>] Y[#<low_y> + #<size> + #<tool_radius>]
+  G1 X[#<low_x> + #<a_pos> + #<a_side>] Y[#<low_y> + #<size> + #<tool_radius>]
+  G1 X[#<low_x> + #<size> + #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_side>]
+  G1 X[#<low_x> + #<size> + #<tool_radius>] Y[#<low_y> + #<a_pos>]
+  G1 X[#<low_x> + #<a_pos> + #<a_side>] Y[#<low_y> - #<tool_radius>]
+  G1 X[#<low_x> + #<a_pos>] Y[#<low_y> - #<tool_radius>]
+  G1 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos>]
+  #<mt_cur> = [#<mt_cur> + 1]
+  o10301 if [#<mt_cur> GE #<milling_times>]
+    #<mt_cur> = 0
+    #<z_idx> = [#<z_idx> + 1]
+  o10301 endif
+o10300 endwhile
+
+(- And the part with bridges -)
+( Compute the tool_runs and tool_depth_per_run for bridges part)
+o<gclib_compute_tool_runs> call [#<bridges_height>] [#<tool_depth>]
+
+#<a_bridges_half> = [ [#<a_side> - #<bridges_width>] / 2.0 - #<tool_radius>]
+#<a_bridges_offset> = [ [#<a_side> - #<bridges_width>] / 2 + #<bridges_width> + #<tool_radius>]
+
+#<z_idx> = 1
+#<mt_cur> = 0
+o10302 while [#<z_idx> LE #<_gclib_tool_runs>]
+  #<z> = [-#<bridges_start_z> + #<z_idx> * [- #<_gclib_tool_depth_per_run>]]
+  F#<feed_rate_dip>
+  G1 Z#<z>
+
+  ( Left side )
+  F#<feed_rate_work>
+  G1 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_bridges_half>]
+  F#<feed_rate_dip>
+  Z[- #<bridges_start_z>]
+  F#<feed_rate_work>
+  G1 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_bridges_offset>]
+  F#<feed_rate_dip>
+  G1 Z#<z>
+  F#<feed_rate_work>
+  G1 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_side>]
+
+  G1 X[#<low_x> + #<a_pos>] Y[#<low_y> + #<size> + #<tool_radius>]
+
+  ( Top side )
+  G1 X[#<low_x> + #<a_pos> + #<a_bridges_half>] Y[#<low_y> + #<size> + #<tool_radius>]
+  F#<feed_rate_dip>
+  Z[- #<bridges_start_z>]
+  F#<feed_rate_work>
+  G1 X[#<low_x> + #<a_pos> + #<a_bridges_offset>] Y[#<low_y> + #<size> + #<tool_radius>]
+  F#<feed_rate_dip>
+  G1 Z#<z>
+  F#<feed_rate_work>
+  G1 X[#<low_x> + #<a_pos> + #<a_side>] Y[#<low_y> + #<size> + #<tool_radius>]
+        
+  G1 X[#<low_x> + #<size> + #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_side>]
+
+  ( Right side )
+  G1 X[#<low_x> + #<size> + #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_bridges_offset>]
+  F#<feed_rate_dip>
+  Z[- #<bridges_start_z>]
+  F#<feed_rate_work>
+  G1 X[#<low_x> + #<size> + #<tool_radius>] Y[#<low_y> + #<a_pos> + #<a_bridges_half>]
+  F#<feed_rate_dip>
+  G1 Z#<z>
+  F#<feed_rate_work>
+  G1 X[#<low_x> + #<size> + #<tool_radius>] Y[#<low_y> + #<a_pos>]
+
+  G1 X[#<low_x> + #<a_pos> + #<a_side>] Y[#<low_y> - #<tool_radius>]
+
+  ( Bottom side )
+  G1 X[#<low_x> + #<a_pos> + #<a_bridges_offset>] Y[#<low_y> - #<tool_radius>]
+  F#<feed_rate_dip>
+  Z[- #<bridges_start_z>]
+  F#<feed_rate_work>
+  G1 X[#<low_x> + #<a_pos> + #<a_bridges_half>] Y[#<low_y> - #<tool_radius>]
+  F#<feed_rate_dip>
+  G1 Z#<z>
+  F#<feed_rate_work>
+  G1 X[#<low_x> + #<a_pos>] Y[#<low_y> - #<tool_radius>]
+
+  G1 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos>]
+
+  #<mt_cur> = [#<mt_cur> + 1]
+  o10301 if [#<mt_cur> GE #<milling_times>]
+    #<mt_cur> = 0
+    #<z_idx> = [#<z_idx> + 1]
+  o10301 endif
+
+o10302 endwhile
+
+o<gclib_cutout_octagon> endsub

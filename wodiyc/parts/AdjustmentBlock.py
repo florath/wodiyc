@@ -25,6 +25,7 @@ class AdjustmentBlock:
         self.__gf.free_movement()
 
     def center_nuts(self):
+        self.__gf.comment("Center nuts")
         nut_complte_cutoff = self.z_size / 2 + self.nut_cutoff
         for y in (self.size / 2 + self.center_diameter / 2
                   - self.nut_indent,
