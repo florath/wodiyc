@@ -34,10 +34,7 @@ class GCodeGenerator:
         self.__feed_rate_dip = config[feed_rates_name]['dip']
         self.__free_movement = config['free_movement']
 
-        self.__tool_diameter = config['tools'][tool]['diameter']
-        self.__tool_diff = config['tools'][tool]['diff']
-        assert self.__tool_diameter >= self.__tool_diff
-        self.__tool_depth = config['tools'][tool]['depth']
+        self.__config = config
 
         self.__output_dir = output_dir
         pathlib.Path(self.__output_dir).mkdir(parents=True, exist_ok=True)
@@ -50,10 +47,10 @@ class GCodeGenerator:
         
         self._w("""G21
 G17 G90
-T%d M06
 S12000.00 M03 G00 X0.000 Y0.000 Z7.000 F%d
 Z%.5f
-""" % (tool, self.__feed_rate_move, self.__free_movement))
+""" % (self.__feed_rate_move, self.__free_movement))
+        self.set_tool(tool)
 
     def close(self):
         '''Close the file
@@ -65,6 +62,10 @@ Z%.5f
 
     def set_tool(self, tool):
         self._w("T%d M06\n" % tool)
+        self.__tool_diameter = self.__config['tools'][tool]['diameter']
+        self.__tool_diff = self.__config['tools'][tool]['diff']
+        assert self.__tool_diameter >= self.__tool_diff
+        self.__tool_depth = self.__config['tools'][tool]['depth']
 
     def next_o(self):
         '''Get next O label
@@ -317,7 +318,7 @@ Z%.5f
         # #6 is Z
         self._w("  #6 = [-%.5f + #5 * -%.5f]\n"
                 % (depth_start, tool_depth_per_run))
-        self._w("  Z#6\n")
+        self._w("  G1 Z#6\n")
 
         self._w("    G1 X%.5f Y%.5f\n" % (real_x, real_y))
         self._w("    G3 X%.5f Y%.5f I%.5f\n" % (real_x, real_y, -real_radius))

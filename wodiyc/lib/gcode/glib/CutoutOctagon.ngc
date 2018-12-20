@@ -1,5 +1,5 @@
 (--- Cutout Octagon ---)
-( OLabel Uses: o10300 - o10301 )
+( OLabel Uses: o10300 - o10303 )
 ( Cuts out an octagon. )
 ( The cut is done on the outside. )
 ( [size] is the overall size. The side length is computed )
@@ -126,10 +126,10 @@ o10302 while [#<z_idx> LE #<_gclib_tool_runs>]
   G1 X[#<low_x> - #<tool_radius>] Y[#<low_y> + #<a_pos>]
 
   #<mt_cur> = [#<mt_cur> + 1]
-  o10301 if [#<mt_cur> GE #<milling_times>]
+  o10303 if [#<mt_cur> GE #<milling_times>]
     #<mt_cur> = 0
     #<z_idx> = [#<z_idx> + 1]
-  o10301 endif
+  o10303 endif
 
 o10302 endwhile
 

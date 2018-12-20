@@ -11,6 +11,7 @@ class AdjustmentBlock:
         self.__dict__.update(cfg)
         self.__gf = GCodeGenerator(
             host_cnc, "%s-Part" % self.__class__.__name__)
+        self.size = self.half_size * 2
 
     def platform(self):
         self.__gf.cutout_octagon(

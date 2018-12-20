@@ -11,7 +11,8 @@ shows a raw one - without the thread.
 
 The complet setup uses two of the nuts. The following image shows a
 test-setup. In the machine later on one of the nuts is mounted
-to the axis.
+to the axis.  (Experiments with springs resulted in backslash
+with higher forces.)
 
 .. image:: ../../images/AntiBacklashNut-Complete.jpg
 

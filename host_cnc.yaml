@@ -32,10 +32,10 @@ tools:
     # 90 degree
     diameter: 7.5
     # difference / overlapping path when cutting
-    diff: 2
+    diff: 1.5
     # This gives good results - for the costs of long
     # cutting times
-    depth: 3
+    depth: 2
 
   # For Alu
   4:

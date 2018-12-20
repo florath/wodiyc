@@ -6,16 +6,32 @@
 # The base thickness of the MDF plates used for (mostly) all
 # construction
 thickness: &thickness 19
+cutout_depth: &cutout_depth 6
 distance_from_edge: &distance_from_edge 25
 distance_from_edge_small: &distance_from_edge_small 18
 cross_nut_diameter: &cross_nut_diameter 10
 
 screwhole_diameter: &screwhole_diameter 6.1
 screwhole_notch_diameter: &screwhole_notch_diameter  15
+# This can be used for standard wishers
+screwhole_notch_diameter_big: &screwhole_notch_diameter_big  18
 screwhole_notch_depth: &screwhole_notch_depth  4
 
 bearing_leg: &bearing_leg 30
 bearing_thick: &bearing_thick 5
+
+# Anti Backlash Nut
+abn_x_size: &abn_x_size  50
+
+# This is a very central measurement:
+# it is the distance between the (central) pipe and the
+# elements around.
+# E.g. the adjustment blocks are sized in the way that
+# they are double this measurement.
+pipe_distance: &pipe_distance 40
+
+# This is the security distance between moving parts.
+security_distance: &security_distance 5
 
 ### Support
 
@@ -76,7 +92,7 @@ Reference:
 
 AdjustmentBlock:
 
-  size: 70
+  half_size: *pipe_distance
   z_size: 19
 
   center_diameter: 36
@@ -87,9 +103,9 @@ AdjustmentBlock:
   nut_cutoff: 6
 
   screwholes_diameter:             *screwhole_diameter
-  screwholes_distance_from_corner: 17
-  screwholes_notch_diameter:       17.5
-  screwholes_notch_depth:          5
+  screwholes_distance_from_corner: 19
+  screwholes_notch_diameter:       18.5
+  screwholes_notch_depth:          1
 
 ### Z Axis
 
@@ -126,22 +142,32 @@ ZAxisBearingSupport:
   y_size: 150
   z_size: *thickness
 
+  cutout_depth: *cutout_depth
+  security_distance: *security_distance
+  pipe_distance: *pipe_distance
+  abn_x_size: *abn_x_size
+  
   cross_nut_distance_from_edge_x: 20
   cross_nut_distance_from_edge_y: *distance_from_edge
   cross_nut_diameter: *cross_nut_diameter
 
   screwhole_diameter:           *screwhole_diameter
-  screwhole_notch_diameter:     *screwhole_notch_diameter
+  screwhole_notch_diameter:     *screwhole_notch_diameter_big
+  # In this case only a very small notch is created -
+  # not to weaken the material too much
+  screwhole_notch_depth_small:   0.5
   screwhole_notch_depth:        *screwhole_notch_depth
 
   cutout_distance: 50
   cutout_width: *thickness
-  cutout_depth: 6
+  cutout_depth: *cutout_depth
 
   cutout_screwhole_distance_from_edge: 20
 
   bearing_leg: *bearing_leg
+  bearing_thick: *bearing_thick
   bearing_distance_from_edge: 5
+  bearing_line_cut_tool: 3
 
 ZAxisLinearBearing:
   feed_rates: "alu_feed_rates"
@@ -177,6 +203,9 @@ ZAxisLinearBearing:
   marker_x: 3
   marker_z: 3
 
+ZAxisNutSupport:
+  a: 1
+
 ### Anti Backlash Nut
 AntiBacklashNut:
   feed_rates: "alu_feed_rates"
@@ -188,7 +217,7 @@ AntiBacklashNut:
   # here to ensure that the hole is completely through.
   z_size: 10.2
 
-  x_size: 50
+  x_size: *abn_x_size
   y_size: 40
 
   threadhole_diameter: 10.2
