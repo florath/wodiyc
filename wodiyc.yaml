@@ -21,7 +21,6 @@ bearing_leg: &bearing_leg 30
 bearing_thick: &bearing_thick 5
 
 # Anti Backlash Nut
-abn_x_size: &abn_x_size  50
 
 # This is a very central measurement:
 # it is the distance between the (central) pipe and the
@@ -107,6 +106,40 @@ AdjustmentBlock:
   screwholes_notch_diameter:       18.5
   screwholes_notch_depth:          1
 
+### Anti Backlash Nut
+AntiBacklashNut:
+  feed_rates: "alu_feed_rates"
+  tool: 4
+  tool_cleanup: 5
+
+  # Because currently the tolerance of the CNC machine
+  # is somewhat high, there is the need to add something
+  # here to ensure that the hole is completely through.
+  z_size: 10.2
+
+  x_size: &abn_x_size 50
+  y_size: &abn_y_size 40
+
+  threadhole_diameter: 10.2
+  # 11 mm is half of a bearing
+  threadhole_distance_from_edge: 25
+  threadhole_distance_from_top:  20
+
+  # Latest after this depth a cleanup cycle is initiated
+  cleanup_depth: 2
+
+  # Number of times each operation is executed - to get
+  # a better result.
+  milling_times: 2
+
+  # The offset over the edges when running cuts
+  cut_offset: 5
+  cut_depth: 9.75
+
+  # The measurements for the (screw) holes
+  holes_distance_from_edge: &abn_holes_distance_from_edge 10
+  holes_diameter: &abn_holes_diameter 6
+  
 ### Z Axis
 
 ZAxisPlatform: &ZAxixPlatform
@@ -116,7 +149,7 @@ ZAxisPlatform: &ZAxixPlatform
   # The complete result will be twice as thick
   z_size:  16
 
-  cutouts_distance:      60
+  cutouts_distance:      &z_axis_platform_cutouts_distance 60
   cutouts_length:       150
   cutouts_length_add:     5
   cutouts_width: *thickness
@@ -138,7 +171,8 @@ ZAxisPlatformBack: *ZAxixPlatform
 ZAxisPlatformFront: *ZAxixPlatform
 
 ZAxisBearingSupport:
-  x_size:  80
+  # Computed
+  #x_size:
   y_size: 150
   z_size: *thickness
 
@@ -162,11 +196,11 @@ ZAxisBearingSupport:
   cutout_width: *thickness
   cutout_depth: *cutout_depth
 
-  cutout_screwhole_distance_from_edge: 20
+  cutout_screwhole_distance_from_edge: &zabs_cutout_screwhole_distance_from_edge 20
 
   bearing_leg: *bearing_leg
   bearing_thick: *bearing_thick
-  bearing_distance_from_edge: 5
+  bearing_distance_from_edge: &z_axis_bearing_support_bearing_distance_from_edge 5
   bearing_line_cut_tool: 3
 
 ZAxisLinearBearing:
@@ -204,38 +238,25 @@ ZAxisLinearBearing:
   marker_z: 3
 
 ZAxisNutSupport:
-  a: 1
+  z_size: *thickness
+  
+  z_axis_platform_cutouts_distance: *z_axis_platform_cutouts_distance
+  cutout_depth: *cutout_depth
+  security_distance: *security_distance
+  pipe_distance: *pipe_distance
 
-### Anti Backlash Nut
-AntiBacklashNut:
-  feed_rates: "alu_feed_rates"
-  tool: 4
-  tool_cleanup: 5
+  bearing_leg: *bearing_leg
+  bearing_distance_from_edge: *z_axis_bearing_support_bearing_distance_from_edge
 
-  # Because currently the tolerance of the CNC machine
-  # is somewhat high, there is the need to add something
-  # here to ensure that the hole is completely through.
-  z_size: 10.2
+  central_hole_diameter: 15
 
-  x_size: *abn_x_size
-  y_size: 40
+  abn_x_size: *abn_x_size
+  abn_y_size: *abn_y_size
 
-  threadhole_diameter: 10.2
-  # 11 mm is half of a bearing
-  threadhole_distance_from_edge: 25
-  threadhole_distance_from_top:  20
+  abn_holes_distance_from_edge: *abn_holes_distance_from_edge
+  abn_holes_diameter: *abn_holes_diameter
 
-  # Latest after this depth a cleanup cycle is initiated
-  cleanup_depth: 2
+  cross_nut_diameter: *cross_nut_diameter
+  cross_nut_distance_from_edge: 15
 
-  # Number of times each operation is executed - to get
-  # a better result.
-  milling_times: 2
-
-  # The offset over the edges when running cuts
-  cut_offset: 5
-  cut_depth: 9.75
-
-  # The measurements for the (screw) holes
-  holes_distance_from_edge: 10
-  holes_diameter: 6
+  zabs_cutout_screwhole_distance_from_edge: *zabs_cutout_screwhole_distance_from_edge

@@ -23,12 +23,12 @@ class ZAxisBearingSupport:
             = math.sqrt(self.bearing_thick * self.bearing_thick / 2)
         print("CUT DEPTH", self.__cut_depth)
 
-        self.computed_x_size \
+        # Mostly duplicate to ZAxisNutSupport
+        self.x_size \
             = self.cutout_depth + self.security_distance \
             + self.pipe_distance \
             + self.__bearing_center + self.bearing_distance_from_edge
-        print("COMPUTED SIZE", self.computed_x_size)
-        
+        print("COMPUTED SIZE", self.x_size)
 
     def platform(self):
         self.__gf_front.cutout_rect(
