@@ -5,14 +5,11 @@
 
 # The base thickness of the MDF plates used for (mostly) all
 # construction
-thickness: &thickness 19
 cutout_depth: &cutout_depth 6
 distance_from_edge: &distance_from_edge 25
 distance_from_edge_small: &distance_from_edge_small 18
 cross_nut_diameter: &cross_nut_diameter 10
 
-screwhole_diameter: &screwhole_diameter 6.1
-screwhole_notch_diameter: &screwhole_notch_diameter  15
 # This can be used for standard wishers
 screwhole_notch_diameter_big: &screwhole_notch_diameter_big  18
 screwhole_notch_depth: &screwhole_notch_depth  4
@@ -32,7 +29,16 @@ pipe_distance: &pipe_distance 40
 # This is the security distance between moving parts.
 security_distance: &security_distance 5
 
-### Support
+### Common
+
+Common:
+  base_material_thickness: &thickness 19
+
+  screwhole_diameter: &screwhole_diameter 6.1
+  screwhole_notch_diameter: &screwhole_notch_diameter  15
+
+# ToDo: Rename Support -> Manufacuring
+### Manufacuring
 
 Support:
   x_size: &fix_x_size 270
@@ -106,8 +112,63 @@ AdjustmentBlock:
   screwholes_notch_diameter:       18.5
   screwholes_notch_depth:          1
 
+### Linear Bearing
+
+LinearBearing:
+  # There are two types of bearings: a short one and a lone one.
+  # The short one is used for Z and X axis.
+  length_x_axis: 150
+  length_y_axis: 150
+  length_z_axis: 200
+  
+  # ToDo: replace with above
+  y_size_short: 150
+  y_size_long: 200
+
+  feed_rates: "alu_feed_rates"
+  tool: 4
+  tool_cleanup: 5
+
+  # Because currently the tolerance of the CNC machine
+  # is somewhat high, there is the need to add something
+  # here to ensure that the hole is completely through.
+  z_size: 5.2
+
+  threadhole_diameter: 6.8
+  # 11 mm is half of a bearing
+  threadhole_distance_from_edge: 11
+  threadhole_distance_from_top:  11
+
+  # Latest after this depth a cleanup cycle is initiated
+  cleanup_depth: 2
+
+  # Number of times each operation is executed - to get
+  # a better result.
+  milling_times: 2
+
+  # ToDo: This should be the reference!
+  # OLD:
+  bearing_leg: *bearing_leg
+  # NEW:
+  outer_leg_length: *bearing_leg
+
+  # ToDo: This should be the reference!
+  # NEW:
+  thickness: 5
+
+  # The offset over the edges when running cuts
+  cut_offset: 7
+  cut_depth: 4.75
+
+  marker_x: 3
+  marker_z: 3
+
 ### Anti Backlash Nut
+
 AntiBacklashNut:
+  x_size: &abn_x_size 50
+  y_size: &abn_y_size 40
+
   feed_rates: "alu_feed_rates"
   tool: 4
   tool_cleanup: 5
@@ -116,9 +177,6 @@ AntiBacklashNut:
   # is somewhat high, there is the need to add something
   # here to ensure that the hole is completely through.
   z_size: 10.2
-
-  x_size: &abn_x_size 50
-  y_size: &abn_y_size 40
 
   threadhole_diameter: 10.2
   # 11 mm is half of a bearing
@@ -171,10 +229,6 @@ ZAxisPlatformBack: *ZAxixPlatform
 ZAxisPlatformFront: *ZAxixPlatform
 
 ZAxisBearingSupport:
-  # Computed
-  #x_size:
-  y_size: 150
-  z_size: *thickness
 
   # ToDo: Remove and use global in measurement
   cutout_depth: *cutout_depth
@@ -204,57 +258,8 @@ ZAxisBearingSupport:
   bearing_distance_from_edge: &z_axis_bearing_support_bearing_distance_from_edge 5
   bearing_line_cut_tool: 3
 
-LinearBearing:
-  feed_rates: "alu_feed_rates"
-  tool: 4
-  tool_cleanup: 5
-
-  # Because currently the tolerance of the CNC machine
-  # is somewhat high, there is the need to add something
-  # here to ensure that the hole is completely through.
-  z_size: 5.2
-
-  y_size_short: 150
-  y_size_long: 200
-
-  threadhole_diameter: 6.8
-  # 11 mm is half of a bearing
-  threadhole_distance_from_edge: 11
-  threadhole_distance_from_top:  11
-
-  # Latest after this depth a cleanup cycle is initiated
-  cleanup_depth: 2
-
-  # Number of times each operation is executed - to get
-  # a better result.
-  milling_times: 2
-
-  # ToDo: This should be the reference!
-  # OLD:
-  bearing_leg: *bearing_leg
-  # NEW:
-  outer_leg_length: *bearing_leg
-
-  # ToDo: This should be the reference!
-  # NEW:
-  thickness: 5
-
-  # The offset over the edges when running cuts
-  cut_offset: 7
-  cut_depth: 4.75
-
-  marker_x: 3
-  marker_z: 3
-
 ZAxisNutSupport:
-  z_size: *thickness
-  
   cutout_depth: *cutout_depth
-  security_distance: *security_distance
-  pipe_distance: *pipe_distance
-
-  bearing_leg: *bearing_leg
-  bearing_distance_from_edge: *z_axis_bearing_support_bearing_distance_from_edge
 
   central_hole_diameter: 15
 

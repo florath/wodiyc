@@ -9,6 +9,11 @@ def measurements_AntiBacklashNut(m):
     '''Compute all the measurements for LinearBearing'''
     p = m.AntiBacklashNut
 
+    p.x_dist_holes = p.x_size - 2 * p.holes_distance_from_edge
+    print("AntiBacklashNut x_dist_holes [%.5f]" % p.x_dist_holes)
+    p.y_dist_holes = p.y_size - 2 * p.holes_distance_from_edge
+    print("AntiBacklashNut y_dist_holes [%.5f]" % p.y_dist_holes)
+
 
 class AntiBacklashNut:
 

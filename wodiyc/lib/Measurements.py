@@ -13,14 +13,12 @@ class Measurements:
         self.__values = {}
 
     def __getattr__(self, name):
-        print("GET NAME", name)
         if name.startswith('_Measurements'):
             return self.__dict__[name]
         else:
             return self.__values[name]
 
     def __setattr__(self, name, value):
-        print("SET NAME", name, value)
         if name.startswith('_Measurements'):
             self.__dict__[name] = value
         else:

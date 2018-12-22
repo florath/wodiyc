@@ -9,11 +9,19 @@ from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator
 def measurements_ZAxisBearingSupport(m):
     '''Compute all the measurements for ZAxisBearingSupport'''
     p = m.ZAxisBearingSupport
+    p.bearing_center_offset \
+        = p.security_distance \
+        + p.pipe_distance
+    print("ZAxisBearingSupport bearing center offset [%.5f]"
+          % p.bearing_center_offset)
     p.x_size \
-        = p.cutout_depth + p.security_distance \
-        + p.pipe_distance \
-        + m.LinearBearing.half_width_inner \
+        = p.cutout_depth + p.bearing_center_offset \
+        + m.LinearBearing.half_width_outer \
         + p.bearing_distance_from_edge
+    print("ZAxisBearingSupport x_size [%.5f]" % p.x_size)
+    p.y_size = m.LinearBearing.length_x_axis
+    print("ZAxisBearingSupport y_size [%.5f]" % p.y_size)
+    p.z_size = m.Common.base_material_thickness
 
 
 class ZAxisBearingSupport:
@@ -36,21 +44,19 @@ class ZAxisBearingSupport:
         for y in (self.p.y_size - self.p.cross_nut_distance_from_edge_y,
                   self.p.cross_nut_distance_from_edge_y):
             self.__gf_front.cylinder(
-                self.p.x_size - self.p.cross_nut_distance_from_edge_x,
+                self.p.cross_nut_distance_from_edge_x,
                 y, self.p.cross_nut_diameter, self.p.z_size)
             self.__gf_front.free_movement()
 
-    def bearing_screws(self):
+    def bearing_screw(self):
         # Notch
         self.__gf_front.cylinder(
-            self.m.LinearBearing.half_width_inner
-            + self.p.bearing_distance_from_edge,
+            self.p.bearing_center_offset + self.p.cutout_depth,
             self.p.y_size / 2,
             self.p.screwhole_notch_diameter, self.p.screwhole_notch_depth)
         # Screw
         self.__gf_front.cylinder(
-            self.m.LinearBearing.half_width_inner
-            + self.p.bearing_distance_from_edge,
+            self.p.bearing_center_offset + self.p.cutout_depth,
             self.p.y_size / 2, self.p.screwhole_diameter,
             self.p.z_size,
             self.p.screwhole_notch_depth)
@@ -65,24 +71,27 @@ class ZAxisBearingSupport:
             self.__gf_front.free_movement()
 
             # Holes to fix the platform of the Z backlash nut
-            for x in (self.p.cutout_screwhole_distance_from_edge + 10,
-                      self.p.x_size - self.p.cutout_screwhole_distance_from_edge):
+            for x in (self.p.bearing_center_offset + self.p.cutout_depth,
+                      self.p.bearing_center_offset + self.p.cutout_depth
+                      - self.m.AntiBacklashNut.x_dist_holes):
                 self.__gf_front.cylinder(
                     x, y, self.p.screwhole_diameter, self.p.z_size,
                     self.p.cutout_depth)
                 self.__gf_front.free_movement()
 
-    def generate(self):
+    def generate_front(self):
         self.cross_nuts()
-        self.bearing_screws()
+        self.bearing_screw()
         self.cutouts()
         self.platform()
         self.__gf_front.close()
 
+    def generate_back(self):
         for y in (self.p.y_size - self.p.cutout_distance,
                   self.p.cutout_distance):
-            for x in (self.p.cutout_screwhole_distance_from_edge + 10,
-                      self.p.x_size - self.p.cutout_screwhole_distance_from_edge):
+            for x in (self.p.bearing_center_offset + self.p.cutout_depth,
+                      self.p.bearing_center_offset + self.p.cutout_depth
+                      - self.m.AntiBacklashNut.x_dist_holes):
                 self.__gf_back.cylinder(
                     x, y, self.p.screwhole_notch_diameter,
                     self.p.screwhole_notch_depth_small)
@@ -90,10 +99,16 @@ class ZAxisBearingSupport:
 
         self.__gf_back.set_tool(self.p.bearing_line_cut_tool)
 
-        for x in (self.p.bearing_distance_from_edge,
-                  self.p.bearing_distance_from_edge + 2 * self.m.LinearBearing.half_width_inner):
+        offset = self.p.bearing_center_offset + self.p.cutout_depth
+        for x in (offset + self.m.LinearBearing.half_width_inner,
+                  offset - self.m.LinearBearing.half_width_inner):
             self.__gf_back.line(
                 x, -2, x, self.p.y_size + 2, self.m.LinearBearing.outer_inner_height_diff)
             self.__gf_back.free_movement()
 
         self.__gf_back.close()
+
+    def generate(self):
+        self.generate_front()
+        self.generate_back()
+

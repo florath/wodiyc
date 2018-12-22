@@ -3,10 +3,10 @@
 # This is the host config - where the wodiyc is build on
 
 feed_rates:
-  work: 500
-  move: 1000
+  work: 600
+  move: 1200
   dip: 100
-free_movement: 7
+free_movement: 10
 
 alu_feed_rates:
   work: 200

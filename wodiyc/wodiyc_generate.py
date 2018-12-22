@@ -61,8 +61,6 @@ def main():
                     sub.update(wodiyc[module_name])
 
                     measurement_computation(measurements)
-                    print("MEASUREMENTS", measurements)
-
                     modules_done.add(module_name)
                 except KeyError:
                     pass
@@ -74,6 +72,8 @@ def main():
 
     # Call the generators
     for module_name, module in modules.items():
+        if not hasattr(module, module_name):
+            continue
         part_class = getattr(module, module_name)
         instance = part_class(host_cnc, measurements, wodiyc)
         instance.generate()

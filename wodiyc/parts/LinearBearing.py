@@ -16,10 +16,17 @@ def measurements_LinearBearing(m):
     # This is half the with of the bearing when they touch a plate
     p.half_width_inner \
         = math.sqrt(p.inner_leg_length * p.inner_leg_length / 2)
+    print("LinearBearing half_width_inner [%.5f]" % p.half_width_inner)
+    # Same for the outer (bigger) size
+    p.half_width_outer \
+        = math.sqrt(p.outer_leg_length * p.outer_leg_length / 2)
+    print("LinearBearing half_width_outer [%.5f]" % p.half_width_outer)
     # Outer to inner depth: difference between the outer and inner triangle
     # in height.
     p.outer_inner_height_diff \
         = math.sqrt(p.thickness * p.thickness / 2)
+    print("LinearBearing outer_inner_height_diff [%.5f]"
+          % p.outer_inner_height_diff)
 
 
 class LinearBearing:
