@@ -5,6 +5,8 @@ import argparse
 import importlib
 import yaml
 
+from wodiyc.lib.Measurements import Measurements
+
 
 def parse_args():
     '''Parse the command line parameters'''
@@ -32,10 +34,48 @@ def main():
     # Import all parts and generate them
     module_parts = importlib.import_module("wodiyc.parts")
 
+    # The measurements of all parts
+    measurements = Measurements()
+
+    # The modules must be initialized in a special order
+    modules = {}
+    
     for module_name in module_parts.__all__:
         module = importlib.import_module("wodiyc.parts.%s" % module_name)
+        modules[module_name] = module
+
+    # First: Get the measurements correctly set.
+    modules_todo = set(modules.keys())
+
+    while len(modules_todo) > 0:
+        modules_done = set()
+
+        for module_name in modules_todo:
+
+            if hasattr(modules[module_name], "measurements_%s" % module_name):
+                try:
+                    measurement_computation \
+                        = getattr(modules[module_name], "measurements_%s" % module_name)
+            
+                    sub = measurements.sub(module_name)
+                    sub.update(wodiyc[module_name])
+
+                    measurement_computation(measurements)
+                    print("MEASUREMENTS", measurements)
+
+                    modules_done.add(module_name)
+                except KeyError:
+                    pass
+            else:
+                # If there is no measurement function, skip this for this phase.
+                modules_done.add(module_name)
+
+        modules_todo -= modules_done
+
+    # Call the generators
+    for module_name, module in modules.items():
         part_class = getattr(module, module_name)
-        instance = part_class(host_cnc, wodiyc)
+        instance = part_class(host_cnc, measurements, wodiyc)
         instance.generate()
 
 

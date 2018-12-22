@@ -5,9 +5,14 @@ Anti Backlash Nut
 from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator, Direction
 
 
+def measurements_AntiBacklashNut(m):
+    '''Compute all the measurements for LinearBearing'''
+    p = m.AntiBacklashNut
+
+
 class AntiBacklashNut:
 
-    def __init__(self, host_cnc, config):
+    def __init__(self, host_cnc, measurements, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
         self.__gf = GCodeGenerator(

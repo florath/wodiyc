@@ -6,7 +6,7 @@ from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator
 
 class AdjustmentBlock:
 
-    def __init__(self, host_cnc, config):
+    def __init__(self, host_cnc, measurements, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
         self.__gf = GCodeGenerator(

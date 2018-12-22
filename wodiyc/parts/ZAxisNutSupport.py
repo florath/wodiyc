@@ -6,60 +6,64 @@ import math
 from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator
 
 
+def measurements_ZAxisNutSupport(m):
+    '''Compute all the measurements for ZAxisNutSupport'''
+    p = m.ZAxisNutSupport
+
+    p.y_size = m.ZAxisPlatform.cutouts_distance \
+               + 2 * p.cutout_depth \
+               - m.ZAxisBearingSupport.z_size
+    # Same as the ZAxisBearing support without the cutout-depth
+    p.x_size = m.ZAxisBearingSupport.x_size \
+               - m.ZAxisBearingSupport.cutout_depth
+
 class ZAxisNutSupport:
 
-    def __init__(self, host_cnc, config):
-        cfg = config[self.__class__.__name__]
-        self.__dict__.update(cfg)
+    def __init__(self, host_cnc, measurements, config):
+        self.m = measurements
+        self.p = measurements.__getattr__(self.__class__.__name__)
+
         self.__gf_upper = GCodeGenerator(
             host_cnc, "%s-Upper" % self.__class__.__name__)
         self.__gf_lower = GCodeGenerator(
             host_cnc, "%s-Lower" % self.__class__.__name__)
 
-        self.y_size = self.z_axis_platform_cutouts_distance \
-                      + 2 * self.cutout_depth
-        # Mostly duplicate to ZAxisBearingSupport
-        self.__bearing_center \
-            = math.sqrt(self.bearing_leg * self.bearing_leg / 2)
-        self.x_size \
-            = self.security_distance \
-            + self.pipe_distance \
-            + self.__bearing_center + self.bearing_distance_from_edge
-
-        self.zabs_x_size \
-            = self.cutout_depth + self.security_distance \
-            + self.pipe_distance \
-            + self.__bearing_center + self.bearing_distance_from_edge
-
     def generate(self):
+        p = self.p
+        m = self.m
         # Holes for fixing the nut
-        x_center = self.security_distance + self.pipe_distance
-        y_center = self.y_size / 2
-        x_diff = self.abn_x_size / 2 - self.abn_holes_distance_from_edge
-        y_diff = self.abn_y_size / 2 - self.abn_holes_distance_from_edge
+        x_center = p.security_distance + p.pipe_distance
+        y_center = p.y_size / 2
+        x_diff = m.AntiBacklashNut.x_size / 2 - m.AntiBacklashNut.holes_distance_from_edge
+        y_diff = m.AntiBacklashNut.y_size / 2 - m.AntiBacklashNut.holes_distance_from_edge
         for x in (x_center - x_diff, x_center + x_diff):
             for y in (y_center - y_diff, y_center + y_diff):
                 self.__gf_upper.cylinder(
-                    x, y, self.abn_holes_diameter, self.z_size)
+                    x, y, m.AntiBacklashNut.holes_diameter, p.z_size)
                 self.__gf_upper.free_movement()
-        
+
         for gf in (self.__gf_upper, self.__gf_lower):
-            # Platform
-            gf.cutout_rect(0, 0, self.x_size, self.y_size, self.z_size)
-            gf.free_movement()
             # Central hole
             gf.cylinder(x_center, y_center,
-                        self.central_hole_diameter, self.z_size)
+                        p.central_hole_diameter, p.z_size)
             gf.free_movement()
 
             # Crossnuts to fix the platform of the Z axis bearing support
-            for x in (self.zabs_cutout_screwhole_distance_from_edge,
-                      self.zabs_x_size - self.zabs_cutout_screwhole_distance_from_edge - 10):
-                for y in (self.cross_nut_distance_from_edge,
-                          self.y_size - self.cross_nut_distance_from_edge):
+            for x in (m.ZAxisBearingSupport.cutout_screwhole_distance_from_edge,
+                      m.ZAxisBearingSupport.x_size
+                      - m.ZAxisBearingSupport.cutout_screwhole_distance_from_edge - 10):
+                for y in (p.cross_nut_distance_from_edge,
+                          p.y_size - p.cross_nut_distance_from_edge):
                     gf.cylinder(
-                        x, y, self.cross_nut_diameter, self.z_size)
+                        x, y, p.cross_nut_diameter, p.z_size)
                     gf.free_movement()
+
+            # Platform
+            gf.cutout_rect(0, 0, p.x_size, p.y_size, p.z_size)
+            gf.free_movement()
+
+            gf.comment("ZAxisNutSupport x_size [%.5f] y_size [%.5f]"
+                       % (p.x_size, p.y_size))
             
         self.__gf_upper.close()
         self.__gf_lower.close()

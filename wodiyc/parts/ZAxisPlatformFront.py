@@ -12,7 +12,7 @@ class ZAxisPlatformFront(ZAxisPlatformCommon):
     tool is mounted and the back where the rails are mounted.
     '''
 
-    def __init__(self, host_cnc, wodiyc):
+    def __init__(self, host_cnc, measurements, wodiyc):
         super().__init__(host_cnc, wodiyc)
 
     def tool_support_holes_callback(self, gf, x):

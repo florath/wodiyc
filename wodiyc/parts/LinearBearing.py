@@ -1,13 +1,30 @@
 '''
 Z Axis Linear Bearing
 '''
+import math
 
 from wodiyc.lib.gcode.GCodeGenerator import GCodeGenerator, Direction
 
 
-class ZAxisLinearBearing:
+def measurements_LinearBearing(m):
+    '''Compute all the measurements for LinearBearing'''
+    p = m.LinearBearing
 
-    def __init__(self, host_cnc, config):
+    # The 'lower' or 'inner' legs length
+    p.inner_leg_length = p.outer_leg_length - p.thickness
+    
+    # This is half the with of the bearing when they touch a plate
+    p.half_width_inner \
+        = math.sqrt(p.inner_leg_length * p.inner_leg_length / 2)
+    # Outer to inner depth: difference between the outer and inner triangle
+    # in height.
+    p.outer_inner_height_diff \
+        = math.sqrt(p.thickness * p.thickness / 2)
+
+
+class LinearBearing:
+
+    def __init__(self, host_cnc, measurements, config):
         cfg = config[self.__class__.__name__]
         self.__dict__.update(cfg)
 
