@@ -15,7 +15,10 @@ alu_feed_rates:
 
 tools:
   1:
-    diameter: 2.8
+    # The current tool (12pcs from China / 2 flutes)
+    # cut only that far.
+    diameter: 2.6
+    #diameter: 2.8
     # difference / overlapping path when cutting
     diff: 2.5
     # This gives good results - for the costs of long

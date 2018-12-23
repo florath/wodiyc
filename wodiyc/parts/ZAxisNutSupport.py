@@ -15,7 +15,7 @@ def measurements_ZAxisNutSupport(m):
                - m.ZAxisBearingSupport.cutout_depth
     print("ZAxisNutSupport x_size [%.5f]" % p.x_size)
     p.y_size = m.ZAxisPlatform.cutouts_distance \
-               + 2 * p.cutout_depth \
+               + 2 * m.ZAxisPlatform.cutout_depth \
                - m.ZAxisBearingSupport.z_size
     print("ZAxisNutSupport y_size [%.5f]" % p.y_size)
     p.z_size = m.Common.base_material_thickness
@@ -48,7 +48,8 @@ class ZAxisNutSupport:
         for gf in (self.__gf_upper, self.__gf_lower):
             # Central hole
             gf.cylinder(x_center, y_center,
-                        p.central_hole_diameter, p.z_size)
+                        m.Common.threaded_rod_x_free_movement_diameter,
+                        p.z_size)
             gf.free_movement()
 
             # Crossnuts to fix the platform of the Z axis bearing support
@@ -58,7 +59,7 @@ class ZAxisNutSupport:
                 for y in (p.cross_nut_distance_from_edge,
                           p.y_size - p.cross_nut_distance_from_edge):
                     gf.cylinder(
-                        x, y, p.cross_nut_diameter, p.z_size)
+                        x, y, m.Common.cross_nut_diameter, p.z_size)
                     gf.free_movement()
 
             # Platform

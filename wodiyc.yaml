@@ -2,40 +2,46 @@
 # All measures in mm
 
 # Global constants
-
-# The base thickness of the MDF plates used for (mostly) all
-# construction
-cutout_depth: &cutout_depth 6
-distance_from_edge: &distance_from_edge 25
 distance_from_edge_small: &distance_from_edge_small 18
-cross_nut_diameter: &cross_nut_diameter 10
-
-# This can be used for standard wishers
-screwhole_notch_diameter_big: &screwhole_notch_diameter_big  18
-screwhole_notch_depth: &screwhole_notch_depth  4
 
 bearing_leg: &bearing_leg 30
 bearing_thick: &bearing_thick 5
 
-# Anti Backlash Nut
-
-# This is a very central measurement:
-# it is the distance between the (central) pipe and the
-# elements around.
-# E.g. the adjustment blocks are sized in the way that
-# they are double this measurement.
-pipe_distance: &pipe_distance 40
-
-# This is the security distance between moving parts.
-security_distance: &security_distance 5
-
-### Common
+### Common and Global Constants
 
 Common:
+  # The base thickness of the MDF plates used for (mostly) all
+  # construction
   base_material_thickness: &thickness 19
+  # For coutouts in the base material
+  base_material_cutout_depth: &cutout_depth 6
 
   screwhole_diameter: &screwhole_diameter 6.1
+  # This is choosen in the way that a 6mm screw can be fixed
+  # using this notch.
   screwhole_notch_diameter: &screwhole_notch_diameter  15
+  # This can be used for standard washers
+  screwhole_notch_diameter_washer: &screwhole_notch_diameter_big  18
+  # This is used to 'hide' the screw heads.
+  screwhole_notch_depth: &screwhole_notch_depth  4
+
+  threaded_rod_x_diameter: 12
+  threaded_rod_y_diameter: 12
+  threaded_rod_z_diameter: 12
+
+  cross_nut_diameter: &cross_nut_diameter 10
+  cross_nut_distance_from_edge: &distance_from_edge 25
+
+  # This is a very central measurement:
+  # it is the distance between the (central) pipe and the
+  # elements around.
+  # E.g. the adjustment blocks are sized in the way that
+  # they use this measurement.
+  pipe_distance: &pipe_distance 40
+
+  # This is the security distance between moving parts.
+  moving_parts_security_distance: &security_distance 5
+    
 
 # ToDo: Rename Support -> Manufacuring
 ### Manufacuring
@@ -58,7 +64,7 @@ Support:
   sleeve_diameter: 10.2
   sleeve_depth: 19
 
-  cutout_depth: 6
+  cutout_depth: *cutout_depth
   cutout_distance: 180
 
   cross_nut_diameter: *cross_nut_diameter
@@ -211,7 +217,9 @@ ZAxisPlatform: &ZAxixPlatform
   cutouts_length:       150
   cutouts_length_add:     5
   cutouts_width: *thickness
+  # ToDo: OLD remove!
   cutouts_depth:          6
+  cutout_depth:          *cutout_depth
 
   screwholes_diameter:           *screwhole_diameter
   screwholes_distance_from_edge: *distance_from_edge
@@ -229,47 +237,28 @@ ZAxisPlatformBack: *ZAxixPlatform
 ZAxisPlatformFront: *ZAxixPlatform
 
 ZAxisBearingSupport:
-
-  # ToDo: Remove and use global in measurement
-  cutout_depth: *cutout_depth
-  security_distance: *security_distance
-  pipe_distance: *pipe_distance
-  abn_x_size: *abn_x_size
-  
+  # Because this part is somewhat small, a dedicated
+  # cross nut distance needs to be defined.
   cross_nut_distance_from_edge_x: 20
-  cross_nut_distance_from_edge_y: *distance_from_edge
-  cross_nut_diameter: *cross_nut_diameter
 
-  screwhole_diameter:           *screwhole_diameter
-  screwhole_notch_diameter:     *screwhole_notch_diameter_big
   # In this case only a very small notch is created -
   # not to weaken the material too much
   screwhole_notch_depth_small:   0.5
-  screwhole_notch_depth:        *screwhole_notch_depth
 
+  # This is the distance of the two ZAxisNutSupports.
+  # (In the original JGRO design there was only one ZAxisNutSupport.
+  #  In reality is was seen that this was not enough: there was a
+  #  bending in the top and bottom of the ZAxisBearingSupport.)
   cutout_distance: 50
-  cutout_width: *thickness
-  cutout_depth: *cutout_depth
 
-  cutout_screwhole_distance_from_edge: &zabs_cutout_screwhole_distance_from_edge 20
-
-  bearing_leg: *bearing_leg
-  bearing_thick: *bearing_thick
-  bearing_distance_from_edge: &z_axis_bearing_support_bearing_distance_from_edge 5
+  # This is the additional space placed at the other side
+  # of the bearing.
+  bearing_distance_from_edge: 5
+  # The tool used is a 90 degree one; that perfectly fits the
+  # bearings.
   bearing_line_cut_tool: 3
 
 ZAxisNutSupport:
-  cutout_depth: *cutout_depth
-
-  central_hole_diameter: 15
-
-  abn_x_size: *abn_x_size
-  abn_y_size: *abn_y_size
-
-  abn_holes_distance_from_edge: *abn_holes_distance_from_edge
-  abn_holes_diameter: *abn_holes_diameter
-
-  cross_nut_diameter: *cross_nut_diameter
+  # Because this part is somewhat small, the normal distance is
+  # too large and need an dedicated definition.
   cross_nut_distance_from_edge: 12
-
-  zabs_cutout_screwhole_distance_from_edge: *zabs_cutout_screwhole_distance_from_edge

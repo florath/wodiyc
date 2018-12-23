@@ -10,10 +10,11 @@ def measurements_ZAxisBearingSupport(m):
     '''Compute all the measurements for ZAxisBearingSupport'''
     p = m.ZAxisBearingSupport
     p.bearing_center_offset \
-        = p.security_distance \
-        + p.pipe_distance
+        = m.Common.moving_parts_security_distance \
+        + m.Common.pipe_distance
     print("ZAxisBearingSupport bearing center offset [%.5f]"
           % p.bearing_center_offset)
+    p.cutout_depth = m.Common.base_material_cutout_depth
     p.x_size \
         = p.cutout_depth + p.bearing_center_offset \
         + m.LinearBearing.half_width_outer \
@@ -22,8 +23,11 @@ def measurements_ZAxisBearingSupport(m):
     p.y_size = m.LinearBearing.length_x_axis
     print("ZAxisBearingSupport y_size [%.5f]" % p.y_size)
     p.z_size = m.Common.base_material_thickness
+    p.cross_nut_distance_from_edge_y \
+        = m.Common.cross_nut_distance_from_edge
+    p.cutout_width = m.Common.base_material_thickness
 
-
+ 
 class ZAxisBearingSupport:
 
     def __init__(self, host_cnc, measurements, config):
@@ -41,11 +45,11 @@ class ZAxisBearingSupport:
         self.__gf_front.free_movement()
 
     def cross_nuts(self):
-        for y in (self.p.y_size - self.p.cross_nut_distance_from_edge_y,
-                  self.p.cross_nut_distance_from_edge_y):
+        for y in (self.p.y_size - self.m.Common.cross_nut_distance_from_edge,
+                  self.m.Common.cross_nut_distance_from_edge):
             self.__gf_front.cylinder(
                 self.p.cross_nut_distance_from_edge_x,
-                y, self.p.cross_nut_diameter, self.p.z_size)
+                y, self.m.Common.cross_nut_diameter, self.p.z_size)
             self.__gf_front.free_movement()
 
     def bearing_screw(self):
@@ -53,13 +57,14 @@ class ZAxisBearingSupport:
         self.__gf_front.cylinder(
             self.p.bearing_center_offset + self.p.cutout_depth,
             self.p.y_size / 2,
-            self.p.screwhole_notch_diameter, self.p.screwhole_notch_depth)
+            self.m.Common.screwhole_notch_diameter_washer,
+            self.m.Common.screwhole_notch_depth)
         # Screw
         self.__gf_front.cylinder(
             self.p.bearing_center_offset + self.p.cutout_depth,
-            self.p.y_size / 2, self.p.screwhole_diameter,
+            self.p.y_size / 2, self.m.Common.screwhole_diameter,
             self.p.z_size,
-            self.p.screwhole_notch_depth)
+            self.m.Common.screwhole_notch_depth)
         self.__gf_front.free_movement()
 
     def cutouts(self):
@@ -75,7 +80,7 @@ class ZAxisBearingSupport:
                       self.p.bearing_center_offset + self.p.cutout_depth
                       - self.m.AntiBacklashNut.x_dist_holes):
                 self.__gf_front.cylinder(
-                    x, y, self.p.screwhole_diameter, self.p.z_size,
+                    x, y, self.m.Common.screwhole_diameter, self.p.z_size,
                     self.p.cutout_depth)
                 self.__gf_front.free_movement()
 
@@ -93,7 +98,7 @@ class ZAxisBearingSupport:
                       self.p.bearing_center_offset + self.p.cutout_depth
                       - self.m.AntiBacklashNut.x_dist_holes):
                 self.__gf_back.cylinder(
-                    x, y, self.p.screwhole_notch_diameter,
+                    x, y, self.m.Common.screwhole_notch_diameter,
                     self.p.screwhole_notch_depth_small)
                 self.__gf_back.free_movement()
 

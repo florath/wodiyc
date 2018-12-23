@@ -54,6 +54,7 @@ def main():
 
             if hasattr(modules[module_name], "measurements_%s" % module_name):
                 try:
+                    print("Compute measurements for [%s]" % module_name)
                     measurement_computation \
                         = getattr(modules[module_name], "measurements_%s" % module_name)
             
@@ -62,8 +63,8 @@ def main():
 
                     measurement_computation(measurements)
                     modules_done.add(module_name)
-                except KeyError:
-                    pass
+                except KeyError as ke:
+                    print("Aborted computation because of [%s]" % ke)
             else:
                 # If there is no measurement function, skip this for this phase.
                 modules_done.add(module_name)
