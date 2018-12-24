@@ -68,4 +68,5 @@ class AdjustmentBlock:
         self.center()
         self.center_nuts()
         self.platform()
+        self.__gf.comment("AdjustmentBlock ")
         self.__gf.close()

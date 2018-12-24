@@ -67,6 +67,9 @@ Z%.5f
         assert self.__tool_diameter >= self.__tool_diff
         self.__tool_depth = self.__config['tools'][tool]['depth']
 
+    def get_tool_diameter(self):
+        return self.__tool_diameter
+
     def next_o(self):
         '''Get next O label
 
