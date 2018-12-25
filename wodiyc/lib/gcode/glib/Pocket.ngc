@@ -1,5 +1,5 @@
 (--- Pocket ---)
-( OLabel Uses: o10200 - o10201 )
+( OLabel Uses: o10200 - o10202 )
 ( Cuts a pocket )
 o<gclib_pocket> sub
 ( Assign parameters to sensible names )
@@ -20,7 +20,19 @@ o<gclib_pocket> sub
 ( Compute the tool_runs and tool_depth_per_run )
 o<gclib_compute_tool_runs> call [#<depth> - #<depth_start>] [#<tool_depth>]
 
+#<max_overlap_complete_round> = [2 * #<tool_diff>]
+( Compute the max )
+o10202 if [#<size_x> LE #<size_y>]
+  #<size_min> = #<size_x>
+o10202 else
+  #<size_min> = #<size_y>
+o10202 endif
+( Compute the area that remains when one outer cut is already done )
+#<remaining_size_min> = [#<size_min> - 2 * [#<tool_diameter> - #<tool_diff>]]
+#<complete_runs> = [FIX [#<remaining_size_min> / #<max_overlap_complete_round>] + 1]
+#<real_diff> = [#<remaining_size_min> / #<complete_runs> / 2]
 #<tool_radius> = [#<tool_diameter> / 2.0]
+#<initial_offset> = [#<tool_diameter> - #<tool_diff>]
 
 ( Move to the beginning of the cut )
 F#<feed_rate_move>
@@ -40,20 +52,35 @@ o10200 while [#<z_idx> LE #<_gclib_tool_runs>]
   G1 Z#<z>
   F#<feed_rate_work>
 
-  o10201 while [#<dx> GE 0.0 AND #<dy> GE 0.0]
+  ( Outer cut )
+  G1 X#<x> Y#<y>
+  X[#<x> + #<dx>]
+  Y[#<y> + #<dy>]
+  X#<x>
+  Y#<y>
+
+  #<run_idx> = 1
+  o10201 while [#<run_idx> LE #<complete_runs>]
+    #<run_offset> = [#<run_idx> * #<real_diff>]
+    
+    ( Re-compute )
+    ( TODO: OFFSET MISSING? )
+    #<x> = [#<low_x> + #<run_offset> + #<initial_offset>]
+    #<y> = [#<low_y> + #<run_offset> + #<initial_offset>]
+    #<dx> = [#<size_x> - 2.0 * #<real_diff> * [#<run_idx> + 0]]
+    #<dy> = [#<size_y> - 2.0 * #<real_diff> * [#<run_idx> + 0]]
+
     G1 X#<x> Y#<y>
     X[#<x> + #<dx>]
     Y[#<y> + #<dy>]
     X#<x>
     Y#<y>
 
-    ( Re-compute )
-    #<x> = [#<x> + #<tool_diff>]
-    #<y> = [#<y> + #<tool_diff>]
-    #<dx> = [#<dx> - 2.0 * #<tool_diff>]
-    #<dy> = [#<dy> - 2.0 * #<tool_diff>]
+    #<run_idx> = [#<run_idx> + 1]
+
   o10201 endwhile
   #<z_idx> = [#<z_idx> + 1]
 o10200 endwhile
 
 o<gclib_pocket> endsub
+

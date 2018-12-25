@@ -29,7 +29,7 @@ def measurements_ZAxisBearingSupport(m):
         = m.Common.cross_nut_distance_from_edge
     p.cutout_width = m.Common.base_material_thickness
 
- 
+
 class ZAxisBearingSupport:
 
     def __init__(self, host_cnc, measurements, config):
