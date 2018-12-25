@@ -64,11 +64,10 @@ o10200 while [#<z_idx> LE #<_gclib_tool_runs>]
     #<run_offset> = [#<run_idx> * #<real_diff>]
     
     ( Re-compute )
-    ( TODO: OFFSET MISSING? )
     #<x> = [#<low_x> + #<run_offset> + #<initial_offset>]
     #<y> = [#<low_y> + #<run_offset> + #<initial_offset>]
-    #<dx> = [#<size_x> - 2.0 * #<real_diff> * [#<run_idx> + 0]]
-    #<dy> = [#<size_y> - 2.0 * #<real_diff> * [#<run_idx> + 0]]
+    #<dx> = [#<size_x> - 2.0 * #<real_diff> * #<run_idx>]
+    #<dy> = [#<size_y> - 2.0 * #<real_diff> * #<run_idx>]
 
     G1 X#<x> Y#<y>
     X[#<x> + #<dx>]
