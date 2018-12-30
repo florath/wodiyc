@@ -16,7 +16,7 @@ Common:
   # In reality the base material is sometime thicker.
   # For my current material at some points thickness of
   # 19.3 - 19.5 mm was measured - for a 19mm sheet.
-  # The problem is, that at least at some possitions (e.g.
+  # The problem is, that at least at some positions (e.g.
   # cutouts) it is important to be really the correct size
   # if not - the parts do not fit.
   base_material_real_thickness: 20
@@ -38,7 +38,7 @@ Common:
   threaded_rod_y_diameter: 12
   threaded_rod_z_diameter: 12
 
-  cross_nut_diameter: &cross_nut_diameter 10
+  cross_nut_diameter: &cross_nut_diameter 10.2
   cross_nut_distance_from_edge: &distance_from_edge 25
 
   # This is a very central measurement:
