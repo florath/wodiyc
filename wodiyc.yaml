@@ -50,6 +50,10 @@ Common:
 
   # This is the security distance between moving parts.
   moving_parts_security_distance: &security_distance 5
+
+  # Some parts need exact fit: because there is the need to
+  # grind them, this is what is added to the original part
+  grind_surcharge: 0.25
     
 
 # ToDo: Rename Support -> Manufacuring

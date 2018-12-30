@@ -12,16 +12,19 @@ def measurements_ZAxisNutSupport(m):
 
     # Same as the ZAxisBearing support without the cutout-depth
     p.x_size = m.ZAxisBearingSupport.x_size \
-               - m.ZAxisBearingSupport.cutout_depth
+               - m.ZAxisBearingSupport.cutout_depth \
+               + 2 * m.Common.grind_surcharge
     print("ZAxisNutSupport x_size [%.5f]" % p.x_size)
     p.y_size = m.ZAxisPlatform.cutouts_distance \
                + 2 * m.ZAxisPlatform.cutout_depth \
-               - m.ZAxisBearingSupport.z_size
+               - m.ZAxisBearingSupport.z_size \
+               + 2 * m.Common.grind_surcharge
     print("ZAxisNutSupport y_size [%.5f]" % p.y_size)
     p.cutout_depth = m.Common.base_material_cutout_depth
     p.z_size = m.Common.base_material_thickness
     p.z_size_real = m.Common.base_material_real_thickness
     p.z_diff = p.z_size_real - p.z_size
+
 
 class ZAxisNutSupport:
 
