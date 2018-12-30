@@ -66,6 +66,8 @@ Z%.5f
         self.__tool_diff = self.__config['tools'][tool]['diff']
         assert self.__tool_diameter >= self.__tool_diff
         self.__tool_depth = self.__config['tools'][tool]['depth']
+        self.__tool_hole_compensation = self.__config['tools'][tool]['hole_compensation']
+        self.__tool_finishing_runs = self.__config['tools'][tool]['finishing_runs']
 
     def get_tool_diameter(self):
         return self.__tool_diameter
@@ -102,12 +104,14 @@ Z%.5f
 
         pos_x and pos_y are the center with the diameter and depth.
         '''
-        self._w("o<gclib_cylinder> call [%.5f] [%.5f] [%.5f] [%.5f] "
-                "[%.5f] [%d] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f]\n"
-                % (pos_x, pos_y, diameter, depth, depth_start, times,
+        self._w("o<gclib_cylinder> call [%.5f] [%.5f] [%.5f] [%.5f] [%.5f] "
+                "[%.5f] [%d] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f] [%.5f]\n"
+                % (pos_x, pos_y, diameter, self.__tool_hole_compensation,
+                   depth, depth_start, times,
                    self.__feed_rate_move, self.__feed_rate_work,
                    self.__feed_rate_dip, self.__tool_depth,
-                   self.__tool_diameter, self.__tool_diff))
+                   self.__tool_diameter, self.__tool_diff,
+                   self.__tool_finishing_runs))
         return
 
     # pylint: disable=too-many-arguments

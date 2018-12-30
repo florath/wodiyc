@@ -1,25 +1,28 @@
 (--- Cylinder ---)
-( OLabel Uses: o10100 - o10102 )
+( OLabel Uses: o10100 - o10103 )
 ( Cuts a cylinder at pos [pos_x, pos_y] with [diameter]. )
 o<gclib_cylinder> sub
 ( Assign parameters to sensible names )
 #<pos_x> = #1
 #<pos_y> = #2
 #<diameter> = #3
-#<depth> = #4
-#<depth_start> = #5
-#<milling_times> = #6
-#<feed_rate_move> = #7
-#<feed_rate_work> = #8
-#<feed_rate_dip> = #9
-#<tool_depth> = #10
-#<tool_diameter> = #11
-#<tool_diff> = #12
+#<hole_compensation> = #4
+#<depth> = #5
+#<depth_start> = #6
+#<milling_times> = #7
+#<feed_rate_move> = #8
+#<feed_rate_work> = #9
+#<feed_rate_dip> = #10
+#<tool_depth> = #11
+#<tool_diameter> = #12
+#<tool_diff> = #13
+#<finishing_runs> = #14
 ( Compute the tool_runs and tool_depth_per_run )
 o<gclib_compute_tool_runs> call [#<depth> - #<depth_start>] [#<tool_depth>]
 
 ( Move to the beginning of the cylinder: left center )
-#<radius> = [#<diameter> / 2.0]
+#<real_diameter> = [#<diameter> + #<hole_compensation>]
+#<radius> = [#<real_diameter> / 2.0]
 #<tool_radius> = [#<tool_diameter> / 2.0]
 #<real_x> = [#<pos_x> - #<radius> + #<tool_radius>]
 
@@ -53,5 +56,20 @@ o10100 while [#<z_idx> LE #<_gclib_tool_runs>]
   o10101 endwhile
   #<z_idx> = [#<z_idx> + 1]
 o10100 endwhile
+
+( Finishing: run some times around the complete outer cylinder )
+( This hopefully equalizes the difference between top and bottom )
+#<real_radius> = [#<radius> - #<tool_radius>]
+#<real_x> = [#<pos_x> - #<radius> + #<tool_radius>]
+#<finishing_idx> = 1
+
+F#<feed_rate_dip>
+G1 Z[- #<depth>]
+F#<feed_rate_work>
+o10103 while [#<finishing_idx> LE #<finishing_runs>]
+  G1 X#<real_x> Y#<pos_y>
+  G3 X#<real_x> Y#<pos_y> I#<real_radius>
+  #<finishing_idx> = [#<finishing_idx> + 1]
+o10103 endwhile
 
 o<gclib_cylinder> endsub

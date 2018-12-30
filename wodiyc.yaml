@@ -23,7 +23,7 @@ Common:
   # For coutouts in the base material
   base_material_cutout_depth: &cutout_depth 6
 
-  screwhole_diameter: &screwhole_diameter 6.1
+  screwhole_diameter: &screwhole_diameter 6
   # This is choosen in the way that a 6mm screw can be fixed
   # using this notch.
   screwhole_notch_diameter: &screwhole_notch_diameter  15
@@ -38,7 +38,7 @@ Common:
   threaded_rod_y_diameter: 12
   threaded_rod_z_diameter: 12
 
-  cross_nut_diameter: &cross_nut_diameter 10.2
+  cross_nut_diameter: &cross_nut_diameter 10
   cross_nut_distance_from_edge: &distance_from_edge 25
 
   # This is a very central measurement:
