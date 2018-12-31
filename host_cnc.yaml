@@ -18,7 +18,7 @@ tools:
     # The current tool (12pcs from China / 2 flutes)
     # cut only that far.
     diameter: 3.175
-    hole_compensation: 1.0
+    hole_compensation: 0.75
     # difference / overlapping path when cutting
     diff: 2.5
     # This gives good results - for the costs of long

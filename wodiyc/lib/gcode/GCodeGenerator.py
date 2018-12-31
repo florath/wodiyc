@@ -30,7 +30,7 @@ class GCodeGenerator:
         self._w("G90 ( Set absolute distance mode )\n")
         self._w("G94 ( Set Units per Minute Mode )\n")
         self._w("G40 ( Cutter compensation off )\n")
-        self._w("G64 P0.01 ( Set path bendind to 1/100 mm )\n")
+        self._w("G64 P0.01 ( Set path bending to 1/100 mm )\n")
         self._w("S1000 M3 ( Start spindle with initial speed )\n")
         self._w("G0 Z%.5f ( Move tool to free movement )\n"
                 % self.__free_movement)
