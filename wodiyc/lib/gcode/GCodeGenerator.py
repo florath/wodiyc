@@ -24,6 +24,17 @@ class GCodeGenerator:
     def _w(self, wstr):
         self.__fd.write(wstr.encode())
 
+    def __write_header(self):
+        self._w("G21 ( Set Units to mm )\n")
+        self._w("G17 ( Select XY plane )\n")
+        self._w("G90 ( Set absolute distance mode )\n")
+        self._w("G94 ( Set Units per Minute Mode )\n")
+        self._w("G40 ( Cutter compensation off )\n")
+        self._w("G64 P0.01 ( Set path bendind to 1/100 mm )\n")
+        self._w("S1000 M3 ( Start spindle with initial speed )\n")
+        self._w("G0 Z%.5f ( Move tool to free movement )\n"
+                % self.__free_movement)
+
     def __init__(self, config, filename, output_dir="NGC",
                  feed_rates_name='feed_rates', tool=1):
 
@@ -44,12 +55,8 @@ class GCodeGenerator:
 
         gcl = GCodeLib()
         gcl.output(self.__fd)
-        
-        self._w("""G21
-G17 G90
-S12000.00 M03 G00 X0.000 Y0.000 Z7.000 F%d
-Z%.5f
-""" % (self.__feed_rate_move, self.__free_movement))
+
+        self.__write_header()
         self.set_tool(tool)
 
     def close(self):
