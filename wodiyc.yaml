@@ -54,7 +54,6 @@ Common:
   # Some parts need exact fit: because there is the need to
   # grind them, this is what is added to the original part
   grind_surcharge: 0.25
-    
 
 # ToDo: Rename Support -> Manufacuring
 ### Manufacuring
@@ -282,6 +281,8 @@ ZAxisBearingSupport:
   # The tool used is a 90 degree one; that perfectly fits the
   # bearings.
   bearing_line_cut_tool: 3
+
+  marker_distance_from_edge: 10
 
 ZAxisNutSupport:
   # Because this part is somewhat small, the normal distance is
