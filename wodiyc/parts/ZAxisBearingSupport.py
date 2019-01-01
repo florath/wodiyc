@@ -15,15 +15,14 @@ def measurements_ZAxisBearingSupport(m):
     print("ZAxisBearingSupport bearing center offset [%.5f]"
           % p.bearing_center_offset)
     p.cutout_depth = m.Common.base_material_cutout_depth
-    p.cutout_depth_real \
-        = m.Common.base_material_cutout_depth \
-        - m.Common.grind_surcharge
     p.x_size \
         = p.cutout_depth + p.bearing_center_offset \
         + m.LinearBearing.half_width_outer \
-        + p.bearing_distance_from_edge
+        + p.bearing_distance_from_edge \
+        + 2 * m.Common.grind_surcharge
     print("ZAxisBearingSupport x_size [%.5f]" % p.x_size)
-    p.y_size = m.LinearBearing.length_x_axis
+    p.y_size = m.LinearBearing.length_x_axis \
+               + 2 * m.Common.grind_surcharge
     print("ZAxisBearingSupport y_size [%.5f]" % p.y_size)
     p.z_size = m.Common.base_material_thickness
     p.z_size_real = m.Common.base_material_real_thickness
@@ -31,6 +30,11 @@ def measurements_ZAxisBearingSupport(m):
     p.cross_nut_distance_from_edge_y \
         = m.Common.cross_nut_distance_from_edge
     p.cutout_width = m.Common.base_material_thickness
+    p.cutout_depth_real \
+        = m.Common.base_material_cutout_depth \
+        - m.Common.grind_surcharge \
+        + p.z_diff
+    print("ZAxisBearingSupport cutout_depth_real [%.5f]" % p.cutout_depth_real)
 
 
 class ZAxisBearingSupport:
@@ -79,7 +83,7 @@ class ZAxisBearingSupport:
             self.__gf_front.pocket(
                 self.p.cutout_depth - offset, y - self.p.cutout_width / 2,
                 self.p.x_size - self.p.cutout_depth + offset, self.p.cutout_width,
-                self.p.cutout_depth_real + self.p.z_diff)
+                self.p.cutout_depth_real)
             self.__gf_front.free_movement()
 
             # Holes to fix the platform of the Z backlash nut
@@ -88,7 +92,7 @@ class ZAxisBearingSupport:
                       - self.m.AntiBacklashNut.x_dist_holes):
                 self.__gf_front.cylinder(
                     x, y, self.m.Common.screwhole_diameter, self.p.z_size_real,
-                    self.p.cutout_depth_real + self.p.z_diff)
+                    self.p.cutout_depth_real)
                 self.__gf_front.free_movement()
 
     def push_ins(self):
